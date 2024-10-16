@@ -4,6 +4,8 @@ import 'package:monkey/styles.dart';
 import '../models/user.dart';
 import '../database_helper.dart';
 import '../styles.dart';
+import 'login_form.dart';
+
 
 //Klasa przedstawiająca ekran do rejestracji nowego użytkownika, gdzie użytkownik może założyć nowe konto.
 class SignupScreen extends StatefulWidget {
