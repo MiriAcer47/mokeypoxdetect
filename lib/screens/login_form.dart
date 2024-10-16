@@ -2,76 +2,102 @@ import 'package:flutter/material.dart';
 import '../database_helper.dart';
 import '../models/user.dart';
 import 'patient_list.dart';
-import '../styles.dart';
 
-
-//Klasa przedstawiająca ekran logowania. W celu zalogowania użytkownik podaje nazwe użytkownika oraz PIN.
+///Klasa przedstawia formularz logowania, umożliwiający użytkownikowu zalogowanie do aplikacji poprzez podanie nazwy użytkownika oraz PINu.
+///Po poprawnym wprowadzeniu danych następuje przekierowanie do ekranu z listą pacjentów.
 class LoginForm extends StatefulWidget {
+  const LoginForm({super.key});
+
   @override
   _LoginFormState createState() => _LoginFormState();
 }
 
+
+///Stan aplikacji dla ekranu logowania. Zarządza kontrolerami tekstu, logiką walidacji i funkcją logowania.
 class _LoginFormState extends State<LoginForm> {
-  final _formKey = GlobalKey<FormState>();
-  final _usernameController = TextEditingController(); //kontoler pola nazwy użytkownika
-  final _pinController = TextEditingController(); //kontoler pola PIN
-  final dbHelper = DatabaseHelper.instance;
+  final _formKey = GlobalKey<FormState>(); //klucz do zarząrzania walidacją.
+  final _usernameController = TextEditingController(); //kontoler pola nazwy użytkownika.
+  final _pinController = TextEditingController(); //kontoler pola PIN.
+  final dbHelper = DatabaseHelper.instance; //instancja klasy DatabaseHelper
 
-  //metoda logowania użytkownika
-  void _login() async {
+  ///Metoda logowania użytkownika.
+  ///Sprawdza czy użytkownik istnieje oraz czy podany PIN jest poprawny,
+  Future<void> _login() async {
     if (_formKey.currentState!.validate()) {
-      String username = _usernameController.text.trim();
-      String pin = _pinController.text.trim();
+      String username = _usernameController.text
+          .trim(); //Pobiera i czyści nazwę użtkownika.
+      String pin = _pinController.text.trim(); //Pobiera i czyści PIN.
 
-      User? user = await dbHelper.getUser(username);
-      if (user != null && user.pin == pin) {
-        //Jeśli dane są poprawne przejdź do listy pacjentów
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => PatientList()),
-        );
-      } else {
-        //W przypadku niepoprawnie wprowadzonych danych wyświetl komunikat o błędzie
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Invalid username or PIN')),
+      try {
+        User? user = await dbHelper.getUser(
+            username); //Pobiera użytkownika z bazy.
+
+        if (!mounted) return;
+        if (user != null && user.pin == pin) {
+          //Jeśli dane są poprawne przejście do listy pacjentów.
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => PatientList()),
+          );
+        } else {
+          //W przypadku niepoprawnie wprowadzonych danych wyświetla komunikat o błędzie.
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Invalid username or PIN')),
+          );
+        }
+      } catch (e) {
+        //Obsługa błędu - przy braku połączenia z bazu wyświetla komunikat  o błędzie.
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text(
+            'Error connectiong to the database. Please try again.')),
         );
       }
     }
   }
 
+  ///Usuwa kontrolery przy zamykaniu widgetu.
   @override
   void dispose() {
     _usernameController.dispose();
     _pinController.dispose();
     super.dispose();
   }
+
   @override
   Widget build(BuildContext context){
+    final colorScheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+
     return Form(
       key: _formKey,
       child: Column(
         children: [
-          //Pola tekstowe dla nazwy użytkownika
+          //Pole tekstowe dla nazwy użytkownika.
           TextFormField(
             controller: _usernameController,
             decoration: InputDecoration(
               hintText: 'Username',
               prefixIcon: Padding(
-                padding: EdgeInsets.all(16),
-                child: Icon(Icons.person),
+                padding: const EdgeInsets.all(12),
+                child: Icon(Icons.person, color: colorScheme.primary),
+              ),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
               ),
             ),
             validator: (value) => value!.isEmpty ? 'Please enter your username' : null,
           ),
-          SizedBox(height: 16.0),
-          //Pola tekstowe dla PIN
+          const SizedBox(height: 16.0),
+          //Pole tekstowe dla PIN.
           TextFormField(
             controller: _pinController,
             decoration: InputDecoration(
               hintText: 'PIN',
               prefixIcon: Padding(
-                padding: EdgeInsets.all(16),
-                child: Icon(Icons.lock),
+                padding: const EdgeInsets.all(16),
+                child: Icon(Icons.lock, color: colorScheme.primary),
+              ),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
               ),
             ),
             keyboardType: TextInputType.number,
@@ -79,50 +105,25 @@ class _LoginFormState extends State<LoginForm> {
             validator: (value) =>
             value!.isEmpty ? 'Please enter your PIN' : null,
           ),
-          SizedBox(height: 32),
+          const SizedBox(height: 24),
           //Przycisk logowania
-          ElevatedButton(
+      SizedBox(
+        width: MediaQuery.of(context).size.width * 0.6,
+        child: ElevatedButton(
             onPressed: _login,
-            child: Text('Login', style: TextStyle(color: Colors.white),
-            ),
-            style:buttonStyle1,
+            style: ElevatedButton.styleFrom(
+              padding: const EdgeInsets.symmetric(horizontal: 48, vertical: 16),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(25),
+              ),
+              backgroundColor: colorScheme.primary,
           ),
+            child: Text('Login',
+                style: textTheme.bodyLarge?.copyWith(color: colorScheme.onPrimary, fontSize: 18, fontWeight: FontWeight.bold)),
+        ),
+      ),
         ],
       ),
-    );
-  }
-}
-
-class HaveAccountCheck extends StatelessWidget{
-  final bool login;
-  final VoidCallback press;
-
-  const HaveAccountCheck({
-    Key? key,
-    this.login = true,
-    required this.press,
-  }) :super(key:key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Text(
-          login ? "Don't have an account? " : "Already have an account? ",
-          style: TextStyle(color: Colors.grey),
-        ),
-        GestureDetector(
-          onTap: press,
-          child: Text(
-            login ? "Sign Up" : "Sign In",
-            style: TextStyle(
-              color: appColor,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ),
-      ],
     );
   }
 }

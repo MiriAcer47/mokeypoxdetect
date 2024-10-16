@@ -3,44 +3,53 @@ import 'package:monkey/styles.dart';
 import '../models/user.dart';
 import '../database_helper.dart';
 import 'login_form.dart';
+import 'have_account_check.dart';
 
 
-//Klasa przedstawiająca ekran do rejestracji nowego użytkownika, gdzie użytkownik może założyć nowe konto.
+///Klasa przedstawiająca ekran do rejestracji nowego użytkownika, gdzie użytkownik może założyć nowe konto.
 class SignupScreen extends StatefulWidget {
+  const SignupScreen({super.key});
+
   @override
   _SignupScreenState createState() => _SignupScreenState();
 }
 
 class _SignupScreenState extends State<SignupScreen> {
-  final _formKey = GlobalKey<FormState>();
+  final _formKey = GlobalKey<FormState>(); //klucz do identyfikacji i walidacji formularza.
   final _usernameController = TextEditingController(); //Kontroler pola nazwy uzytkownika
   final _pinController = TextEditingController(); //Kontroler pola PIN
   final _emailController = TextEditingController(); //Kontroler pola adresu e-mail
   final dbHelper = DatabaseHelper.instance;
 
-  //Metoda rejestracji nowego użytkownika
-  void _signup() async {
+  ///Metoda rejestracji nowego użytkownika przy użyciu wprowadznych danych.
+  ///WYświetle komunikat o powodzeniu lub blędzie.
+  Future<void> _signup() async {
+    //Walidacja danych formularza
     if (_formKey.currentState!.validate()) {
       String username = _usernameController.text.trim();
       String pin = _pinController.text.trim();
       String email = _emailController.text.trim();
 
+      //Utworzenie nowego obiektu użytkownika.
       User newUser = User(
         username: username,
         pin: pin,
         email: email,
       );
-
+      if (!mounted) return;
       try {
+
+        //Wstawia nowego użytkownika do bazy.
         await dbHelper.insertUser(newUser);
+        if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Account created successfully!')),
+          const SnackBar(content: Text('Account created successfully!')),
         );
         Navigator.pop(context); //Powrót do ekranu logowania
       } catch (e) {
         //Obsługa błędu, gdy nazwa użytkownika lub adres e-mail już istnieją
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Username or email already exists')),
+          const SnackBar(content: Text('Username or email already exists')),
         );
       }
     }
@@ -56,30 +65,35 @@ class _SignupScreenState extends State<SignupScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+
     return Scaffold(
       appBar: AppBar(
-        title: Text('Create an Account'),
+        backgroundColor: colorScheme.primary,
+        title: Text('Create an Account',
+          style: textTheme.headlineSmall?.copyWith(color: colorScheme.onPrimary),),
+        iconTheme: IconThemeData(color: colorScheme.onPrimary),
       ),
-      body: SingleChildScrollView(
 
+      body: SingleChildScrollView(
         child: Center(
           child:Padding(
-        padding: EdgeInsets.all(16),
+        padding: const EdgeInsets.all(24),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            SizedBox(height: 100),
-            const Text(
-
+            const SizedBox(height: 80),
+             Text(
           'Sign Up to Create an Account',
-          style: TextStyle(
-          fontSize: 24,
+          style: textTheme.headlineSmall?.copyWith(
           fontWeight: FontWeight.bold,
-          color: appColor,
+          //color: colorScheme.onSurface,
+            color: colorScheme.primary,
           ),
           textAlign: TextAlign.center,
           ),
-         SizedBox(height:32.0),
+         const SizedBox(height:32.0),
           Form(
           key: _formKey,
           child: Column(
@@ -90,48 +104,70 @@ class _SignupScreenState extends State<SignupScreen> {
                 decoration: InputDecoration(
                 hintText: 'Username',
                 prefixIcon: Padding(
-                padding: EdgeInsets.all(16),
-                child: Icon(Icons.person),
+                padding: const EdgeInsets.all(16),
+                  child: Icon(Icons.person, color: colorScheme.primary),),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
                 ),
               ),
               validator: (value) => value!.isEmpty ? 'Please enter a username' : null,
               ),
-              SizedBox(height: 16.0),
+              const SizedBox(height: 16.0),
               // Pole tekstowe dla pinu
               TextFormField(
                 controller: _emailController,
                 decoration: InputDecoration(
                 hintText: 'Email',
                 prefixIcon: Padding(
-                padding: EdgeInsets.all(16),
-                child: Icon(Icons.email),
+                padding: const EdgeInsets.all(16),
+                  child: Icon(Icons.email, color: colorScheme.primary),),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
                 ),
               ),
                 validator: (value) =>
                 value!.isEmpty ? 'Please enter an e-mail' : null,
               ),
-              SizedBox(height: 16.0),
+              const SizedBox(height: 16.0),
               //Pole tekstowe dla adresu email
               TextFormField(
                 controller: _pinController,
                 decoration: InputDecoration(
                 hintText: 'PIN',
                 prefixIcon: Padding(
-                padding: EdgeInsets.all(16),
-                child: Icon(Icons.lock),
+                padding: const EdgeInsets.all(16),
+                  child: Icon(Icons.lock, color: colorScheme.primary),
+                ),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
                 ),
                 ),
                 validator: (value) => value!.isEmpty ? 'Please enter a PIN' : null,
               ),
-              SizedBox(height: 32.0),
+              const SizedBox(height: 32.0),
               //Przycisk rejestracji użytkownika - sign up
-              ElevatedButton(
+
+            SizedBox(
+              width: MediaQuery.of(context).size.width * 0.6,
+              child: ElevatedButton(
                 onPressed: _signup,
-                child: Text('Login', style: TextStyle(color: Colors.white),
+                style:ElevatedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(horizontal: 48, vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(25),
+                  ),
+                  backgroundColor: colorScheme.primary,
                 ),
-                style:buttonStyle1,
+                child: Text('Sign Up',
+                  style: textTheme.bodyLarge?.copyWith(
+                    color: colorScheme.onPrimary,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
               ),
-            SizedBox(height: 16.0),
+            ),
+            const SizedBox(height: 16.0),
             HaveAccountCheck(
             login: false,
             press: (){

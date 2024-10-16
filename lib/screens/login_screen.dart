@@ -1,26 +1,26 @@
 import 'package:flutter/material.dart';
 import 'signup_screen.dart';
 import 'login_form.dart';
+import 'have_account_check.dart';
 
-
+///Klasa przedstawiająca ekran logowania, który składa się z formularza logowania.
+///W przypadku braku konta umożliwia przejście do ekranu rejestracji.
   class LoginScreen extends StatelessWidget{
+  const LoginScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
 
     return Scaffold(
-
       appBar: AppBar(
         title: Text('User Login', style: TextStyle(color:colorScheme.onPrimary)),
         backgroundColor: colorScheme.primary,
-
       ),
       body: SingleChildScrollView(
-
         child: Center(
-
           child: Padding(
-            padding: EdgeInsets.all(16),
+            padding: const EdgeInsets.all(24.0),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -28,19 +28,21 @@ import 'login_form.dart';
                   'assets/images/img22_loginscreen.png',
                   height: 200.0,
                 ),
-
-                SizedBox(height: 20.0),
+                const SizedBox(height: 20.0),
                  Text(
                   'Enter your login and PIN',
                   style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                    color: colorScheme.onSurface,
+                    //color: colorScheme.onSurface,
+                    color: colorScheme.primary,
                     fontWeight: FontWeight.bold,
                   ),
                   textAlign: TextAlign.center,
                 ),
-                SizedBox(height: 32.0),
-                LoginForm(),
-                SizedBox(height: 16.0),
+                const SizedBox(height: 32.0),
+                //Formularz logowania
+                const LoginForm(),
+                //Opcja przejścia do ekranu rejestracji.
+                const SizedBox(height: 16.0),
                 HaveAccountCheck(
                   login: true,
                   press: (){
