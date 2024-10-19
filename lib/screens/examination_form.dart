@@ -15,7 +15,7 @@ class ExaminationForm extends StatefulWidget {
   final Patient patient;
   final Examination? examination;
 
-  ExaminationForm({required this.patient, this.examination});
+  const ExaminationForm({super.key, required this.patient, this.examination});
 
   @override
   _ExaminationFormState createState() => _ExaminationFormState();
@@ -113,31 +113,47 @@ class _ExaminationFormState extends State<ExaminationForm> {
   @override
   Widget build(BuildContext context) {
     final dateFormat = DateFormat('yyyy-MM-dd');
+    final colorScheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.examination == null ? 'Add Examination' : 'Edit Examination'),
+        title: Text(widget.examination == null ? 'Add Examination' : 'Edit Examination',
+        style: textTheme.titleLarge?.copyWith(
+            color: colorScheme.onPrimary),
       ),
+      backgroundColor: colorScheme.primary,
+      iconTheme: IconThemeData(color: colorScheme.onPrimary),
+    ),
       body: Padding(
-        padding: EdgeInsets.only(bottom: 80), // Dodajemy padding, aby zawartość nie była zasłonięta przez przyciski
+        //padding: const EdgeInsets.all(8),
+        padding: const EdgeInsets.only(bottom: 40),
         child: SingleChildScrollView(
           child: Padding(
-            padding: EdgeInsets.all(16),
+            padding: const EdgeInsets.all(16),
             child: Card(
               elevation: 4,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              color: colorScheme.surface,
               child: Padding(
-                padding: EdgeInsets.all(16),
+                padding: const EdgeInsets.all(16),
                 child: Form(
                   key: _formKey,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       // Pole wyboru daty
+                      // Pole wyboru daty
                       TextFormField(
                         readOnly: true,
                         decoration: InputDecoration(
                           labelText: 'Date',
-                          prefixIcon: Icon(Icons.calendar_today),
+                          prefixIcon: Padding(
+                            padding: const EdgeInsets.all(12),
+                            child: Icon(Icons.calendar_today, color: colorScheme.primary),
+                          ),
+                          // filled: true,
+                          // fillColor: colorScheme.surface,
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
                           ),
@@ -147,13 +163,16 @@ class _ExaminationFormState extends State<ExaminationForm> {
                         ),
                         onTap: () => _selectExaminationDate(context),
                       ),
-                      SizedBox(height: 20),
+                      const SizedBox(height: 20),
                       // Przełącznik Wyniku Końcowego
-                      Text(
+                       Text(
                         'Final Result',
-                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                         style: textTheme.bodyLarge?.copyWith(
+                          color: colorScheme.onSurface,
+                           fontWeight: FontWeight.bold,
+                        ),
                       ),
-                      SizedBox(height: 10),
+                      const SizedBox(height: 8),
                       ToggleButtons(
                         borderRadius: BorderRadius.circular(10),
                         isSelected: [_finalResult == true, _finalResult == false],
@@ -162,43 +181,48 @@ class _ExaminationFormState extends State<ExaminationForm> {
                             _finalResult = index == 0;
                           });
                         },
-                        children: [
-                          Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 20),
-                            child: Text('Positive'),
-                          ),
-                          Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 20),
-                            child: Text('Negative'),
-                          ),
+                        constraints: BoxConstraints(
+                          minHeight: 40.0,
+                          minWidth: MediaQuery.of(context).size.width*0.4,
+                        ),
+                        children: const [
+                          Text('Pozytywny'),
+                          Text('Negatywny'),
                         ],
                       ),
-                      SizedBox(height: 20),
+                      const SizedBox(height: 20),
                       // Pole Notatek
                       TextFormField(
                         initialValue: _notes,
                         decoration: InputDecoration(
                           labelText: 'Notes',
-                          prefixIcon: Icon(Icons.note),
+                          prefixIcon: Icon(Icons.note, color: colorScheme.primary),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
                           ),
                         ),
                         maxLines: 3,
                         onSaved: (value) => _notes = value,
+                        style: textTheme.bodyMedium?.copyWith(
+                          color: colorScheme.onSurface,
+                        ),
                       ),
-                      SizedBox(height: 20),
+                      const SizedBox(height: 20),
                       Text(
                         'Examination Images',
-                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                        style: textTheme.bodyLarge?.copyWith(
+                          color: colorScheme.onSurface,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
-                      SizedBox(height: 10),
+                      const SizedBox(height: 8),
                       // Lista zdjęć
                       images.isEmpty
-                          ? Center(child: Text('No images'))
+                          ? Center(child: Text('No images',  style: textTheme.bodyMedium?.copyWith(
+                        color: colorScheme.onSurfaceVariant,),),)
                           : ListView.builder(
                         shrinkWrap: true,
-                        physics: NeverScrollableScrollPhysics(),
+                        physics: const NeverScrollableScrollPhysics(),
                         itemCount: images.length,
                         itemBuilder: (context, index) {
                           final img = images[index];
@@ -223,18 +247,18 @@ class _ExaminationFormState extends State<ExaminationForm> {
                                 'Result: ${img.result == true ? 'Positive' : 'Negative'}',
                                 style: TextStyle(
                                   fontSize: 16,
-                                  color: img.result == true ? Colors.red : Colors.green,
+                                  color: img.result == true ? colorScheme.error : Colors.green[400],
                                 ),
                               ),
                               trailing: IconButton(
-                                icon: Icon(Icons.delete, color: Colors.red),
+                                icon: Icon(Icons.delete, color: colorScheme.error),
                                 onPressed: () => _confirmDeleteImage(img.imageID!),
                               ),
                             ),
                           );
                         },
                       ),
-                      SizedBox(height: 20),
+                      const SizedBox(height: 20),
                     ],
                   ),
                 ),
@@ -244,52 +268,50 @@ class _ExaminationFormState extends State<ExaminationForm> {
         ),
       ),
       // Umieszczenie przycisków w bottomNavigationBar
-      bottomNavigationBar: Container(
-        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black12,
-              blurRadius: 4,
-              offset: Offset(0, -2),
-            ),
-          ],
-        ),
-        child: Row(
-          children: [
-            Expanded(
-              child: ElevatedButton.icon(
-                onPressed: _saveExamination,
-                icon: Icon(Icons.save, color: Colors.white),
-                label: Text(
-                  'Save',
-                  style: TextStyle(color: Colors.white, fontSize: 18),
-                ),
-                style: ElevatedButton.styleFrom(
+      bottomNavigationBar: Padding(
+        padding: const EdgeInsets.all(16.0),
+          child: Row(
+            children:[
+              Expanded(
+                child: ElevatedButton.icon(
+                    onPressed: _saveExamination,
+                  icon: Icon(Icons.save, color: colorScheme.onPrimary),
+                  label: Text(
+                    'Save',
+                    style: textTheme.bodyLarge?.copyWith(
 
-                  backgroundColor: Theme.of(context).primaryColor,
-                  padding: EdgeInsets.symmetric(vertical: 15),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+                      color: colorScheme.onPrimary,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
-                  elevation: 5,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: colorScheme.primary,
+                    padding: EdgeInsets.symmetric(vertical: 15),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    elevation: 5,
+                  ),
                 ),
               ),
-            ),
-            SizedBox(width: 16),
+            const SizedBox(width: 16),
             Expanded(
               child: ElevatedButton.icon(
                 //onPressed: _saveExamination,
                 onPressed: _navigateToImageForm,
-                icon: Icon(Icons.add_a_photo, color: Colors.white),
+                icon: Icon(Icons.add_a_photo, color: colorScheme.onPrimary),
                 label: Text(
                   'Take Photo',
-                  style: TextStyle(color: Colors.white, fontSize: 18),
+                  style: textTheme.bodyLarge?.copyWith(
+                    color: colorScheme.onPrimary,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Theme.of(context).primaryColor,
-                  padding: EdgeInsets.symmetric(vertical: 15),
+                  padding: const EdgeInsets.symmetric(vertical: 15),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),

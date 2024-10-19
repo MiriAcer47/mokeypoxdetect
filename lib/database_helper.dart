@@ -53,7 +53,7 @@ class DatabaseHelper {
         birthDate TEXT NOT NULL,
         telNo VARCHAR(50),
         email VARCHAR(50),
-        pesel VARCHAR(20) UNIQUE
+        pesel VARCHAR(20) UNIQUE NULL
       )
     ''');
     //Definicja tabeli Examination w bazie danych.

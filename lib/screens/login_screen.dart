@@ -11,19 +11,23 @@ import 'have_account_check.dart';
   @override
   Widget build(BuildContext context) {
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('User Login', style: TextStyle(color:colorScheme.onPrimary)),
+        title: Text('User Login', style: textTheme.titleLarge?.copyWith(color: colorScheme.onPrimary),),
         backgroundColor: colorScheme.primary,
       ),
       body: SingleChildScrollView(
         child: Center(
           child: Padding(
             padding: const EdgeInsets.all(24.0),
+
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
+
               children: [
+                const SizedBox(height: 40.0),
                 Image.asset(
                   'assets/images/img22_loginscreen.png',
                   height: 200.0,
@@ -38,7 +42,7 @@ import 'have_account_check.dart';
                   ),
                   textAlign: TextAlign.center,
                 ),
-                const SizedBox(height: 32.0),
+                const SizedBox(height: 48.0),
                 //Formularz logowania
                 const LoginForm(),
                 //Opcja przejścia do ekranu rejestracji.

@@ -10,7 +10,7 @@ import 'alertDialog.dart';
 class ExaminationList extends StatefulWidget {
   final Patient patient;
 
-  ExaminationList({required this.patient});
+  const ExaminationList({required this.patient});
 
   @override
   _ExaminationListState createState() => _ExaminationListState();
@@ -53,7 +53,7 @@ class _ExaminationListState extends State<ExaminationList> {
   void _confirmDeleteExamintation(int id){
     CCupertinoAlertDialog.show(
       context: context,
-      title: "Delete Examination",
+      title: "Delete examination",
       content: 'Do you really want to delete this examination?',
       onConfirm: (){
         _deleteExamination(id);
@@ -63,23 +63,40 @@ class _ExaminationListState extends State<ExaminationList> {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+
     return Scaffold(
       appBar: AppBar(
-        title: Text('${widget.patient.firstName} ${widget.patient.secondName} Examinations'),
+        title: Text('${widget.patient.firstName} ${widget.patient.secondName} Examinations',
+        style: textTheme.titleLarge?.copyWith(
+          color: colorScheme.onPrimary,
+        ),),
+        backgroundColor: colorScheme.primary,
+        iconTheme: IconThemeData(color: colorScheme.onPrimary),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: ListView.builder(
+        child: examinations.isEmpty ? Center(
+          child: Text('No examination found.',style: textTheme.bodyMedium?.copyWith(color: colorScheme.onSurfaceVariant,
+          ),),
+        )
+        : ListView.builder(
           itemCount: examinations.length,
           itemBuilder: (context, index) {
             final exam = examinations[index];
             return Card(
-              elevation: 3,
-              margin: EdgeInsets.symmetric(vertical: 8.0),
+              elevation: 2,
+              margin: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16),
               shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12)),
+                  borderRadius: BorderRadius.circular(16),
+              //side: BorderSide(
+                //color: colorScheme.outline,
+              //),
+              ),
+              color: colorScheme.surfaceContainer,
               child: ListTile(
-                contentPadding: EdgeInsets.all(16),
+                contentPadding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 10),
                 onTap: () {
                   Navigator.push(
                     context,
@@ -96,21 +113,23 @@ class _ExaminationListState extends State<ExaminationList> {
                 },
                 title: Text(
                   dateFormat.format(exam.date),
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  style: textTheme.titleMedium?.copyWith(
+                    color: colorScheme.onSurface,
+                  ),
                 ),
                 subtitle: Padding(
-                  padding: EdgeInsets.only(top: 8),
+                  padding: const EdgeInsets.only(top: 8),
                   child: Text(
                     'Final Result: ${exam.finalResult == true ? 'Positive' : 'Negative'}',
-                    style: TextStyle(
+                    style: textTheme.labelLarge?.copyWith(
                       color: exam.finalResult == true
-                          ? Colors.red
-                          : Colors.green,
-                      fontSize: 16,
+                          ? colorScheme.error
+                          : Colors.green.shade400,
                     ),
                   ),
                 ),
-                trailing: Row(mainAxisSize: MainAxisSize.min, children: [
+                trailing: Row(mainAxisSize: MainAxisSize.min,
+                    children: [
                   //Przycisk edycji badania
                   //IconButton(
                     //icon: Icon(Icons.edit, color: Colors.blue),
@@ -118,7 +137,7 @@ class _ExaminationListState extends State<ExaminationList> {
                   //),
                   //Przycisk usunięcia badania
                   IconButton(
-                    icon: Icon(Icons.delete, color:Colors.red),
+                    icon: Icon(Icons.delete, color: colorScheme.error),
                     //onPressed: () =>  _deleteExamination(exam.examinationID!),
                     onPressed: () => _confirmDeleteExamintation(exam.examinationID!),
                   ),
@@ -148,9 +167,15 @@ class _ExaminationListState extends State<ExaminationList> {
       // Floating Action Button
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _navigateToExaminationForm(),
-        label: Text('Add Examination'),
-        icon: Icon(Icons.add),
-        backgroundColor: Theme.of(context).primaryColor,
+        label: Text('Add examination',
+          style: textTheme.bodyLarge?.copyWith(
+            color: colorScheme.onPrimary,
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        icon: Icon(Icons.add,  color: colorScheme.onPrimary),
+        backgroundColor: colorScheme.secondary,
       ),
     );
   }

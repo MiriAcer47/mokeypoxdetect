@@ -48,7 +48,7 @@ class _LoginFormState extends State<LoginForm> {
       } catch (e) {
         //Obsługa błędu - przy braku połączenia z bazu wyświetla komunikat  o błędzie.
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text(
-            'Error connectiong to the database. Please try again.')),
+            'Error connecting to the database. Please try again.')),
         );
       }
     }
@@ -105,7 +105,7 @@ class _LoginFormState extends State<LoginForm> {
             validator: (value) =>
             value!.isEmpty ? 'Please enter your PIN' : null,
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 48),
           //Przycisk logowania
       SizedBox(
         width: MediaQuery.of(context).size.width * 0.6,

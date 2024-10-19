@@ -72,7 +72,7 @@ class _SignupScreenState extends State<SignupScreen> {
       appBar: AppBar(
         backgroundColor: colorScheme.primary,
         title: Text('Create an Account',
-          style: textTheme.headlineSmall?.copyWith(color: colorScheme.onPrimary),),
+          style: textTheme.titleLarge?.copyWith(color: colorScheme.onPrimary),),
         iconTheme: IconThemeData(color: colorScheme.onPrimary),
       ),
 
@@ -93,7 +93,7 @@ class _SignupScreenState extends State<SignupScreen> {
           ),
           textAlign: TextAlign.center,
           ),
-         const SizedBox(height:32.0),
+         const SizedBox(height:48.0),
           Form(
           key: _formKey,
           child: Column(
@@ -111,6 +111,7 @@ class _SignupScreenState extends State<SignupScreen> {
                 ),
               ),
               validator: (value) => value!.isEmpty ? 'Please enter a username' : null,
+
               ),
               const SizedBox(height: 16.0),
               // Pole tekstowe dla pinu
@@ -144,7 +145,7 @@ class _SignupScreenState extends State<SignupScreen> {
                 ),
                 validator: (value) => value!.isEmpty ? 'Please enter a PIN' : null,
               ),
-              const SizedBox(height: 32.0),
+              const SizedBox(height: 48.0),
               //Przycisk rejestracji użytkownika - sign up
 
             SizedBox(

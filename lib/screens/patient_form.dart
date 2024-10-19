@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:monkey/screens/patient_list.dart';
 import 'package:monkey/styles.dart';
 import '../models/patient.dart';
 import '../database_helper.dart';
@@ -10,7 +11,7 @@ import 'package:intl/intl.dart';
 class PatientForm extends StatefulWidget {
   final Patient? patient;
 
-  PatientForm({this.patient});
+  const PatientForm({this.patient});
 
   @override
   _PatientFormState createState() => _PatientFormState();
@@ -51,10 +52,12 @@ class _PatientFormState extends State<PatientForm> {
       _pesel = '';
     }
   }
+
 //Metoda zapisu danych pacjenta
-  void _savePatient() async {
+  Future<void> _savePatient() async {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
+
       final patient = Patient(
         patientID: widget.patient?.patientID,
         firstName: _firstName,
@@ -65,25 +68,43 @@ class _PatientFormState extends State<PatientForm> {
         email: _email,
         pesel: _pesel,
       );
-      if (widget.patient == null) {
-        //Dodawanie nowego pacjenta
-        await dbHelper.insertPatient(patient);
-      } else {
-        //Aktualizacja istniejącego pacjenta
-        await dbHelper.updatePatient(patient);
-      }
-      Navigator.pop(context);
+      try {
+        if (widget.patient == null) {
+          //Dodawanie nowego pacjenta
+          await dbHelper.insertPatient(patient);
+          print("New patient added successfully.");
+        } else {
+          //Aktualizacja istniejącego pacjenta
+          await dbHelper.updatePatient(patient);
+          print("Patient updated successfully.");}
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => PatientList()),
+        );
+      } catch(e) {
+    // Handle any errors with saving
+    print('Error saving patient: $e');
+    ScaffoldMessenger.of(context).showSnackBar(
+    const SnackBar(content: Text('Error saving patient. Please try again.')),
+    );
     }
   }
 
+  else {
+  print('Form validation failed');
+  }
+}
+
   //Metoda pozwalająca na wybór daty urodzenia w kalendarzu
   Future<void> _selectBirthDate(BuildContext context) async {
+
     final DateTime? picked = await showDatePicker(
       context: context,
       initialDate: _birthDate,
       firstDate: DateTime(1900), //minimalna data
       lastDate: DateTime.now(), //maksymalna data
     );
+
     if (picked != null && picked != _birthDate) {
       setState(() {
         _birthDate = picked; //aktualizacja daty urodzenia
@@ -94,15 +115,23 @@ class _PatientFormState extends State<PatientForm> {
   @override
   Widget build(BuildContext context) {
     final dateFormat = DateFormat('yyyy-MM-dd');
+    final colorScheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+
+
     return Scaffold(
-      resizeToAvoidBottomInset: true,
+      //resizeToAvoidBottomInset: true,
         appBar: AppBar(
-          title:
-          Text(widget.patient == null ? 'Add Patient' : 'Edit Patient'),
-        ),
+          title: Text(widget.patient == null ? 'Add patient' : 'Edit patient data',
+            style: textTheme.titleLarge?.copyWith(
+              color: colorScheme.onPrimary),
+          ),
+            backgroundColor: colorScheme.primary,
+          iconTheme: IconThemeData(color: colorScheme.onPrimary),
+          ),
+
         body: SingleChildScrollView(
-        child: Padding(
-          padding: EdgeInsets.all(16),
+          padding: const EdgeInsets.all(24),
           //Formularz wprowadzania danych pacjenta
           child: Form(
               key: _formKey,
@@ -113,42 +142,60 @@ class _PatientFormState extends State<PatientForm> {
                   initialValue: _firstName,
                   decoration: InputDecoration(
                       labelText: 'First Name',
-                      prefixIcon: Icon(Icons.person),
+                    prefixIcon: Padding(
+                      padding: const EdgeInsets.all(12),
+                      child: Icon(Icons.person, color: colorScheme.primary),
+                    ),
+                    //filled: true,
+                    //fillColor: colorScheme.surface,
                     border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
                   ),
                   validator: (value) =>
                   value!.isEmpty ? 'Please enter first name' : null,
                   onSaved: (value) => _firstName = value!,
                 ),
-                  SizedBox(height: 16),
+                  const SizedBox(height: 20),
                 //Pole tekstowe nazwiska pacjenta
                 TextFormField(
                   initialValue: _secondName,
                   decoration: InputDecoration(labelText: 'Surname',
-                    prefixIcon: Icon(Icons.person_outline),
+                    prefixIcon: Padding(
+                      padding: const EdgeInsets.all(12),
+                      child: Icon(Icons.person_outline, color: colorScheme.primary),
+                    ),
+                    //filled: true,
+                    //fillColor: colorScheme.surface,
                     border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
                   ),
                   validator: (value) =>
                   value!.isEmpty ? 'Please enter surname' : null,
                   onSaved: (value) => _secondName = value!,
                 ),
-                  SizedBox(height: 16),
+                  const SizedBox(height: 20),
                 //Pole wyboru płci - M - mężczyzna, F - kobieta
                 DropdownButtonFormField<String>(
                   value: _gender,
                   decoration: InputDecoration(labelText: 'Gender',
-                   labelStyle: TextStyle(fontSize: 18),
-                   prefixIcon: Icon(Icons.people),
+                    prefixIcon:
+                    Padding(
+                      padding: const EdgeInsets.all(12),
+                      child: Icon(Icons.people, color: colorScheme.primary),
+                    ),
+                    //filled: true,
+                    fillColor: colorScheme.surface,
                     border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
                   ),
                   items: ['M', 'F'].map((label) {
                     return DropdownMenuItem(
                       value: label,
-                      child: Text(label == 'M' ? 'Male' : 'Female',
-                        style: TextStyle(fontSize: 16),),);
+                      child: Text(label == 'M' ? 'Male' : 'Female'),);
+                        //style: TextStyle(fontSize: 16),),);
 
                     /*items: ['M', 'F']
                       .map((label) => DropdownMenuItem(
@@ -157,9 +204,9 @@ class _PatientFormState extends State<PatientForm> {
                   )).toList(),*/
 
                   }).toList(),
-                  icon: Icon(Icons.arrow_drop_down, color: Colors.black45),
-                  iconSize: 30,
-                  isExpanded: true,
+                  icon: Icon(Icons.arrow_drop_down, color: colorScheme.primary),
+                  //iconSize: 30,
+                  //isExpanded: true,
                   onChanged: (value) {
                     setState(() {
                       _gender = value!;
@@ -167,13 +214,18 @@ class _PatientFormState extends State<PatientForm> {
                   },
                   onSaved: (value) => _gender = value!,
                 ),
-                  SizedBox(height: 16),
+                  const SizedBox(height: 16),
                 //Pole wyboru daty urodzenia
                   TextFormField(
                     readOnly: true,
                     decoration: InputDecoration(
                       labelText: 'Birth date',
-                      prefixIcon: Icon(Icons.calendar_today),
+                      prefixIcon: Padding(
+                        padding: const EdgeInsets.all(12),
+                        child: Icon(Icons.calendar_today, color: colorScheme.primary),
+                      ),
+                      //filled: true,
+                      fillColor: colorScheme.surface,
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
@@ -183,49 +235,75 @@ class _PatientFormState extends State<PatientForm> {
                     ),
                     onTap: () => _selectBirthDate(context),
                   ),
-                  SizedBox(height: 16),
+                  const SizedBox(height: 20),
                 //Pole tekstowe numetu telefonu
                 TextFormField(
                   initialValue: _telNo,
                   decoration: InputDecoration(labelText: 'Telephone Number',
-                  prefixIcon: Icon(Icons.phone),
+                  prefixIcon: Padding(
+                    padding: const EdgeInsets.all(12),
+                    child: Icon(Icons.phone, color: colorScheme.primary),
+                  ),
+                    //filled: true,
+                    fillColor: colorScheme.surface,
                     border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
                   ),
                   onSaved: (value) => _telNo = value,
                 ),
-                  SizedBox(height: 16),
+                  const SizedBox(height: 16),
                 //Pole tekstowe adresu e-mail
                 TextFormField(
                   initialValue: _email,
-                  decoration: InputDecoration(labelText: 'Email', prefixIcon: Icon(Icons.email),
+                  decoration: InputDecoration(labelText: 'Email', prefixIcon: Padding(
+                    padding: const EdgeInsets.all(12),
+                    child: Icon(Icons.email, color: colorScheme.primary),
+                  ),
+                    //filled: true,
+                    fillColor: colorScheme.surface,
                     border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
                   ),
                   onSaved: (value) => _email = value,
                 ),
-                  SizedBox(height: 16),
+                  const SizedBox(height: 20),
                 //Pole tekstowe numeru pesel
                 TextFormField(
                   initialValue: _pesel,
-                  decoration: InputDecoration(labelText: 'PESEL',  prefixIcon: Icon(Icons.assignment_ind),
+                  decoration: InputDecoration(labelText: 'PESEL',  prefixIcon: Padding(
+                    padding: const EdgeInsets.all(12),
+                    child: Icon(Icons.assignment_ind, color: colorScheme.primary),
+                  ),
+                    //filled: true,
+                    fillColor: colorScheme.surface,
                     border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
                   ),
                   onSaved: (value) => _pesel = value,
                 ),
-                SizedBox(height: 32),
-                //Przycisk zapisu danych pacjenta
-                ElevatedButton(
-                  onPressed: _savePatient,
-                  child: Text('Save'),
-                  style: buttonStyle1,
-                ),
+                  const SizedBox(height: 48),
+                  SizedBox(width: MediaQuery.of(context).size.width * 0.6,
+                    child: ElevatedButton(
+                      onPressed: _savePatient,
+                      style: ElevatedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(horizontal: 48, vertical: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(25),
+                        ),
+                        backgroundColor: colorScheme.primary,
+                      ),
+                      child: Text('Save',
+                          style: textTheme.bodyLarge?.copyWith(color: colorScheme.onPrimary, fontSize: 18, fontWeight: FontWeight.bold)),
+                    ),
+                  ),
                 ],
               ),
           ),
         ),
-        ),
+
     );
   }
 }

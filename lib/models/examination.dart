@@ -4,7 +4,7 @@ class Examination {
   int? examinationID;
 
   ///ID pacjenta, któremu jest robione badanie.
-  int patientID;
+  int? patientID;
 
   ///Data wykonania badania.
   DateTime date;
@@ -43,6 +43,7 @@ class Examination {
       'finalResult': finalResult == null ? null : (finalResult! ? 1 : 0),
       'notes': notes,
     };
+
   }
 
  ///Tworzy obiekt Examination na podstawie mapy pobranej z bazy danych.
@@ -55,7 +56,7 @@ class Examination {
   factory Examination.fromMap(Map<String, dynamic> map) {
     return Examination(
       examinationID: map['examinationID'] as int?,
-      patientID: map['patientID'] as int,
+      patientID: map['patientID'] as int?,
       date: DateTime.parse(map['date'] as String),
       finalResult: map['finalResult'] != null ? (map['finalResult'] == 1) : null,
       notes: map['notes'] as String?,

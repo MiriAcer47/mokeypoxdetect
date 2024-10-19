@@ -85,7 +85,7 @@ class _PatientListState extends State<PatientList> {
   void _confirmDeletePatient(int id){
     CCupertinoAlertDialog.show(
       context: context,
-      title: "Delete Patient",
+      title: "Delete patient",
       content: 'Do you really want to delete this patient?',
       onConfirm: (){
         _deletePatient(id);
@@ -96,17 +96,24 @@ class _PatientListState extends State<PatientList> {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
     return Scaffold(
       appBar: AppBar(
-        title: Text('Patients'),
+        title: Text('Patients list',
+          style: textTheme.titleLarge?.copyWith(
+            color: colorScheme.onPrimary,
+          ),
+        ),
+        backgroundColor: colorScheme.primary,
         actions: [
           IconButton(
-            icon: Icon(Icons.logout),
+            icon: Icon(Icons.logout, color: colorScheme.onPrimary),
             onPressed: () {
               //wylogowanie użytkownika, powrót do ekranu logowania
               Navigator.pushAndRemoveUntil(
                 context,
-                MaterialPageRoute(builder: (context) => LoginScreen()),
+                MaterialPageRoute(builder: (context) => const LoginScreen()),
                     (Route<dynamic> route) => false,
               );
             },
@@ -115,7 +122,7 @@ class _PatientListState extends State<PatientList> {
       ),
       body: SingleChildScrollView(
         child: Padding(
-          padding: EdgeInsets.all(16),
+          padding: const EdgeInsets.all(16),
           child: Column(
             children: [
               Padding(
@@ -123,12 +130,21 @@ class _PatientListState extends State<PatientList> {
                 child: TextField(
                 controller: _searchController,
                 decoration: InputDecoration(
-                labelText: 'Search by PESEL, First Name, or Second Name',
-                prefixIcon: Icon(Icons.search),
+                hintText: 'Search by PESEL, First Name, or Second Name',
+                filled: true,
+                fillColor: Theme.of(context).colorScheme.surface,
+                prefixIcon: Icon(Icons.search, color: colorScheme.onSurface),
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(30),
+                   borderSide: BorderSide(
+                    color: colorScheme.outline,
+                    ),
             ),
-          ),
+                  contentPadding: EdgeInsets.all(12),
+                ),
+                style: textTheme.bodyMedium?.copyWith(
+                    color: colorScheme.onSurface, // Text color for the search
+                  ),
         ),
 
     ),
@@ -140,11 +156,34 @@ class _PatientListState extends State<PatientList> {
               itemBuilder: (context, index) {
                 final patient = filteredPatients[index];
                 return Card(
-                  margin: EdgeInsets.symmetric(vertical: 8.0),
-                child:  ListTile(
-                  title: Text('${patient.firstName} ${patient.secondName}'),
+                  elevation: 2,
+                  margin: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                    //side: BorderSide(
+                      //color: colorScheme.outline,
+                //),
+                ),
+                  color: colorScheme.surfaceContainer,
+
+                  child: ListTile(
+                contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                  title: Text('${patient.firstName} ${patient.secondName}',
+                  style: textTheme.titleMedium?.copyWith(
+                    //fontSize: 18,
+                    //fontWeight: FontWeight.bold,
+                    color:colorScheme.onSurface,
+                  ),
+
+                  ),
                   subtitle: Text(
-                      'Gender: ${patient.gender}, Birth Date: ${dateFormat.format(patient.birthDate)}'),
+                      'Gender: ${patient.gender =='M' ? 'Male': 'Female'}, Birth Date: ${dateFormat.format(patient.birthDate)}',
+                      style: textTheme.labelMedium?.copyWith(
+                      color:colorScheme.onSurfaceVariant,
+                //fontSize: 14,
+                //),
+                      ),
+                  ),
                   onTap: () {
                     //Nawigacja do ekranu badań pacjenta
                     Navigator.push(
@@ -157,12 +196,12 @@ class _PatientListState extends State<PatientList> {
                   trailing: Row(mainAxisSize: MainAxisSize.min, children: [
                    //Przycisk edycji pacjenta
                     IconButton(
-                      icon: Icon(Icons.edit, color: Colors.blue),
+                      icon: Icon(Icons.edit, color: colorScheme.surfaceTint),
                       onPressed: () => _navigateToPatientForm(patient: patient),
                     ),
                     //Przycisk usunięcia pacjenta
                     IconButton(
-                      icon: Icon(Icons.delete, color:Colors.red),
+                      icon: Icon(Icons.delete, color: colorScheme.error),
                       onPressed: () => _confirmDeletePatient(patient.patientID!),
                       //onPressed: () => _deletePatient(patient.patientID!),
                     ),
@@ -178,9 +217,15 @@ class _PatientListState extends State<PatientList> {
       //Przycisk dodawania nowego pacjenta
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _navigateToPatientForm(),
-        label: Text('Add patient'),
-        icon: Icon(Icons.add),
-        backgroundColor: Theme.of(context).primaryColor,
+        label: Text('Add patient',
+        style: textTheme.bodyLarge?.copyWith(
+        color: colorScheme.onPrimary,
+        fontSize: 18,
+        fontWeight: FontWeight.bold,
+        ),
+        ),
+        icon: Icon(Icons.add,  color: colorScheme.onPrimary),
+        backgroundColor: colorScheme.secondary,
       ),
     );
   }

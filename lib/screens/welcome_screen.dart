@@ -41,8 +41,8 @@ class WelcomeScreen extends StatelessWidget {
 
                 //Tekst opisujący aplikację
                 Text(
-                  'An online detection and investment platform for everyone',
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  'Take a photo of your skin lesion and get the results',
+                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                     color: colorScheme.onPrimary.withOpacity(0.7),
                   ),
                   textAlign: TextAlign.center,

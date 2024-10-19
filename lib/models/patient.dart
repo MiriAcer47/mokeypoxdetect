@@ -58,7 +58,7 @@ class Patient {
       'birthDate': birthDate.toIso8601String(),
       'telNo': telNo,
       'email': email,
-      'pesel': pesel, // 'pesel': pesel != '' ? pesel : null,
+      'pesel': pesel?.isEmpty == true ? null : pesel,
     };
     if (patientID != null) {
       map['patientID'] = patientID as String?;
