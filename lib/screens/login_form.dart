@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import '../database_helper.dart';
 import '../models/user.dart';
+import '../services/session_manager.dart';
 import 'patient_list.dart';
+import 'package:bcrypt/bcrypt.dart';
 
 ///Klasa przedstawia formularz logowania, umożliwiający użytkownikowu zalogowanie do aplikacji poprzez podanie nazwy użytkownika oraz PINu.
 ///Po poprawnym wprowadzeniu danych następuje przekierowanie do ekranu z listą pacjentów.
@@ -33,17 +35,37 @@ class _LoginFormState extends State<LoginForm> {
             username); //Pobiera użytkownika z bazy.
 
         if (!mounted) return;
-        if (user != null && user.pin == pin) {
+
+        if (user != null) {
+          if (user.isBlocked) {
+            print('This account has been blocked');
+            // Jeśli użytkownik jest zablokowany, wyświetlamy komunikat i przerywamy logowanie.
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('This account has been blocked. Please contact the administrator.')),
+            );
+            return; // Zatrzymujemy logowanie
+          }
+          bool isPinValid = BCrypt.checkpw(pin, user.pin);
+
           //Jeśli dane są poprawne przejście do listy pacjentów.
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => PatientList()),
-          );
-        } else {
-          //W przypadku niepoprawnie wprowadzonych danych wyświetla komunikat o błędzie.
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Invalid username or PIN')),
-          );
+
+          if (isPinValid) {
+            // Logowanie pomyślne, ustawiamy użytkownika w session managerze
+            SessionManager().login(user);
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => PatientList()),
+            );
+          } else {
+            //W przypadku niepoprawnie wprowadzonych danych wyświetla komunikat o błędzie.
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Invalid username or PIN')),
+            );
+          }
+        } else{
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Invalid username or PIN')),
+            );
         }
       } catch (e) {
         //Obsługa błędu - przy braku połączenia z bazu wyświetla komunikat  o błędzie.

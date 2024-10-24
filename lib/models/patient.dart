@@ -51,6 +51,7 @@ class Patient {
   /// Zwraca:
   /// - Mapę z danymi pacjenta.
   Map<String, dynamic> toMap() {
+
     final map = {
       'firstName': firstName,
       'secondName': secondName,
@@ -61,7 +62,7 @@ class Patient {
       'pesel': pesel?.isEmpty == true ? null : pesel,
     };
     if (patientID != null) {
-      map['patientID'] = patientID as String?;
+      map['patientID'] = patientID.toString();
     }
     return map;
   }
@@ -74,6 +75,7 @@ class Patient {
   /// Zwraca:
   /// - Obiekt typu Patient.
   factory Patient.fromMap(Map<String, dynamic> map) {
+    print('Map Patient ');
     return Patient(
       patientID: map['patientID'] as int?,
       firstName: map['firstName'] as String,

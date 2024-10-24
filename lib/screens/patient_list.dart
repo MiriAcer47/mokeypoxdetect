@@ -1,11 +1,16 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'user_management_screen.dart';
 import '../database_helper.dart';
 import '../models/patient.dart';
+import '../services/session_manager.dart';
 import 'patient_form.dart';
 import 'examination_list.dart';
 import 'alertDialog.dart';
 import 'login_screen.dart';
+import 'new_account_screen.dart';
+//import 'have_account_check.dart';
+import 'change_password_screen.dart';
 import 'package:intl/intl.dart';
 
 //Klasa przedstawiająca ekran z listą pacjentów z metodami wyszukiwania pacjenta z listy, dodawania, edyci danych i usuwania pacjentów
@@ -96,6 +101,8 @@ class _PatientListState extends State<PatientList> {
 
   @override
   Widget build(BuildContext context) {
+    final currentUser = SessionManager().getLoggedInUser();  // Pobieramy aktualnie zalogowanego użytkownika
+    final isAdmin = currentUser?.isAdmin ?? false;  // Sprawdzamy, czy użytkownik jest administratorem
     final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
     return Scaffold(
@@ -105,12 +112,48 @@ class _PatientListState extends State<PatientList> {
             color: colorScheme.onPrimary,
           ),
         ),
+        iconTheme: IconThemeData(color: colorScheme.onPrimary),
         backgroundColor: colorScheme.primary,
         actions: [
+          if (isAdmin)  // Wyświetlamy ikonę tylko jeśli użytkownik jest adminem
+            IconButton(
+              icon: Icon(Icons.admin_panel_settings),
+              onPressed: () {
+                // Przejście do ekranu zarządzania użytkownikami
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => UserManagementScreen()),
+                );
+              },
+            ),
+          IconButton(
+            icon: Icon(Icons.vpn_key, color: colorScheme.onPrimary),
+            onPressed: () {
+              //wylogowanie użytkownika, powrót do ekranu logowania
+              Navigator.pushAndRemoveUntil(
+                context,
+                MaterialPageRoute(builder: (context) => ChangePasswordScreen()),
+                    (Route<dynamic> route) => false,
+              );
+            },
+          ),
+          if (isAdmin)  // Wyświetlamy ikonę tylko jeśli użytkownik jest adminem
+            IconButton(
+              icon: Icon(Icons.person_add, color: colorScheme.onPrimary),
+              onPressed: () {
+                //wylogowanie użytkownika, powrót do ekranu logowania
+                Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(builder: (context) => const NewAccountScreen()),
+                      (Route<dynamic> route) => false,
+                );
+              },
+            ),
           IconButton(
             icon: Icon(Icons.logout, color: colorScheme.onPrimary),
             onPressed: () {
               //wylogowanie użytkownika, powrót do ekranu logowania
+              SessionManager().logout();
               Navigator.pushAndRemoveUntil(
                 context,
                 MaterialPageRoute(builder: (context) => const LoginScreen()),

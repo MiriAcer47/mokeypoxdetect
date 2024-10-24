@@ -6,6 +6,7 @@ import 'models/patient.dart';
 import 'models/examination.dart';
 import 'models/examination_image.dart';
 import 'models/user.dart';
+import 'package:bcrypt/bcrypt.dart';
 
 ///Klasa do obsługi bazy danych SQLite w aplikacji.
 class DatabaseHelper {
@@ -53,7 +54,7 @@ class DatabaseHelper {
         birthDate TEXT NOT NULL,
         telNo VARCHAR(50),
         email VARCHAR(50),
-        pesel VARCHAR(20) UNIQUE NULL
+        pesel VARCHAR(20)
       )
     ''');
     //Definicja tabeli Examination w bazie danych.
@@ -84,16 +85,21 @@ class DatabaseHelper {
       CREATE TABLE User (
         userID INTEGER PRIMARY KEY AUTOINCREMENT,
         username VARCHAR(20) NOT NULL UNIQUE,
-        pin VARCHAR(5) NOT NULL,
-        email VARCHAR(50) NOT NULL UNIQUE
+        pin VARCHAR(60) NOT NULL,
+        email VARCHAR(50) NOT NULL UNIQUE,
+        isAdmin INTEGER NOT NULL DEFAULT 0,
+        isBlocked INTEGER NOT NULL DEFAULT 0
       )
     ''');
 
     // Wstawienie domyślnego użytkownika
+    String hashedPin = BCrypt.hashpw('1234', BCrypt.gensalt());
     await db.insert('User', {
       'username': 'admin',
-      'pin': '1234',
+      'pin': hashedPin,
       'email': 'admin@example.com',
+      'isAdmin': 1,
+      'isBlocked': 0,
     });
   }
 
@@ -108,9 +114,20 @@ class DatabaseHelper {
   /// - ID wstawionego rekordu.
   Future<int> insertUser(User user) async {
     Database db = await instance.database;
+
+    String hashedPin = BCrypt.hashpw(user.pin, BCrypt.gensalt());
+
+    user.pin = hashedPin;
+
     return await db.insert('User', user.toMap());
   }
 
+//Pobranie listy użytkowników
+  Future<List<User>> getAllUsers() async {
+    Database db = await instance.database;
+    final List<Map<String, dynamic>> maps = await db.query('User');
+    return List.generate(maps.length, (i) => User.fromMap(maps[i]));
+  }
   ///Pobiera użytkownika na podstawie nazwy użytkownika.
   ///
   /// Paramet:
@@ -193,7 +210,10 @@ class DatabaseHelper {
   /// Zwraca:
   /// - Liczbę zaktualizowanych rekordów.
   Future<int> updatePatient(Patient patient) async {
+    print('update patient data '+patient.patientID.toString());
+
     Database db = await instance.database;
+    print('połączenie z bazą');
     return await db.update(
       'Patient',
       patient.toMap(),
@@ -256,6 +276,7 @@ class DatabaseHelper {
   /// Zwraca:
   /// - Liczbę zaktualizowanych rekordów.
   Future<int> updateExamination(Examination exam) async {
+    print('Update exam ');
     Database db = await instance.database;
     return await db.update(
       'Examination',

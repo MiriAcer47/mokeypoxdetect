@@ -98,7 +98,9 @@ class _ExaminationListState extends State<ExaminationList> {
               child: ListTile(
                 contentPadding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 10),
                 onTap: () {
-                  Navigator.push(
+                  _navigateToExaminationForm(exam: exam);
+
+                /*  Navigator.push(
                     context,
                     MaterialPageRoute(
                       builder: (context) =>
@@ -109,6 +111,8 @@ class _ExaminationListState extends State<ExaminationList> {
                           //ExaminationImageList(examination: exam),
                     ),
                   );
+
+                 */
 
                 },
                 title: Text(
@@ -131,10 +135,10 @@ class _ExaminationListState extends State<ExaminationList> {
                 trailing: Row(mainAxisSize: MainAxisSize.min,
                     children: [
                   //Przycisk edycji badania
-                  //IconButton(
-                    //icon: Icon(Icons.edit, color: Colors.blue),
-                    //onPressed: () =>  _navigateToExaminationForm(exam: exam),
-                  //),
+                  IconButton(
+                    icon: Icon(Icons.send_outlined, color: colorScheme.surfaceTint),
+                    onPressed: () =>  _navigateToExaminationForm(exam: exam),
+                  ),
                   //Przycisk usunięcia badania
                   IconButton(
                     icon: Icon(Icons.delete, color: colorScheme.error),

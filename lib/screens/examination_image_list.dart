@@ -4,6 +4,7 @@ import '../models/examination.dart';
 import '../models/examination_image.dart';
 import '../database_helper.dart';
 import 'examination_image_form.dart';
+import 'examination_image_form_tl.dart';
 import 'alertDialog.dart';
 
 //Klasa przedstawiająca listę zdjęć dla badania
@@ -41,7 +42,7 @@ class _ExaminationImageListState extends State<ExaminationImageList> {
     await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => ExaminationImageForm(examination: widget.examination),
+        builder: (context) => ExaminationImageFormTL(examination: widget.examination, typ: 1,),
       ),
     );
     _refreshImages();

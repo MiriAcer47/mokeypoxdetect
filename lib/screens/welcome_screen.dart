@@ -42,7 +42,7 @@ class WelcomeScreen extends StatelessWidget {
                 //Tekst opisujący aplikację
                 Text(
                   'Take a photo of your skin lesion and get the results',
-                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
                     color: colorScheme.onPrimary.withOpacity(0.7),
                   ),
                   textAlign: TextAlign.center,

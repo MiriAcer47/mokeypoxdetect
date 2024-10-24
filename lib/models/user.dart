@@ -12,6 +12,10 @@ class User {
   ///Email użytkownika.
   String email;
 
+  /// Konfiguracja konta użytkownika.
+  bool isAdmin;
+  bool isBlocked;
+
 
   /// Konstruktor klasy User.
   ///
@@ -25,6 +29,8 @@ class User {
     required this.username,
     required this.pin,
     required this.email,
+    this.isAdmin = false,
+    this.isBlocked = false,
   });
 
   ///Konwersja obiektu User na mapę do zapisu w bazie danych.
@@ -37,6 +43,8 @@ class User {
       'username': username,
       'pin': pin,
       'email': email,
+      'isAdmin': isAdmin ? 1 : 0,  // Zapisujemy bool jako int
+      'isBlocked': isBlocked ? 1 : 0,  // Zapisujemy bool jako int
     };
   }
   /// Tworzy obiekt User na podstawie mapy pobranej z bazy danych.
@@ -52,6 +60,8 @@ class User {
       username: map['username'] as String,
       pin: map['pin'] as String,
       email: map['email'] as String,
+      isAdmin: map['isAdmin'] == 1,
+      isBlocked: map['isBlocked'] == 1,
     );
   }
 }

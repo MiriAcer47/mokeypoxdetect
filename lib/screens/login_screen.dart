@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'signup_screen.dart';
+//import 'signup_screen.dart';
 import 'login_form.dart';
-import 'have_account_check.dart';
+//import 'have_account_check.dart';
 
 ///Klasa przedstawiająca ekran logowania, który składa się z formularza logowania.
 ///W przypadku braku konta umożliwia przejście do ekranu rejestracji.
@@ -47,7 +47,7 @@ import 'have_account_check.dart';
                 const LoginForm(),
                 //Opcja przejścia do ekranu rejestracji.
                 const SizedBox(height: 16.0),
-                HaveAccountCheck(
+                /*HaveAccountCheck(
                   login: true,
                   press: (){
                   Navigator.push(
@@ -57,7 +57,7 @@ import 'have_account_check.dart';
                     ),
                   );
                  },
-                ),
+                ),*/
               ],
             ),
           ),
