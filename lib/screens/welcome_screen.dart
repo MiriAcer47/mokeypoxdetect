@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'login_screen.dart';
 
 ///Klasa reprezentująca ekran startowy aplikacji.
+///Ekran z logiem, tesktem startowym oraz przejściem do ekranu logowania.
 class WelcomeScreen extends StatelessWidget {
   const WelcomeScreen({super.key});
 
@@ -67,14 +68,16 @@ class WelcomeScreen extends StatelessWidget {
                     //Zmiana kolru podczas naciśnięcia przycisku.
                     backgroundColor: MaterialStateProperty.resolveWith<Color?>(
                             (Set<MaterialState> states) {
-                          if (states.contains(MaterialState.pressed))
+                          if (states.contains(MaterialState.pressed)) {
                             return colorScheme.primary;
+                          }
                           return colorScheme.onPrimary;
                         }),
                     foregroundColor: MaterialStateProperty.resolveWith<Color?>(
                             (Set<MaterialState> states) {
-                          if (states.contains(MaterialState.pressed))
+                          if (states.contains(MaterialState.pressed)) {
                             return colorScheme.onPrimary;
+                          }
                           return colorScheme.primary;
                         }),
                     side: MaterialStateProperty.resolveWith<BorderSide>((states) {

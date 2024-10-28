@@ -7,6 +7,7 @@ import 'have_account_check.dart';
 import 'patient_list.dart';
 
 
+
 ///Klasa przedstawiająca ekran do rejestracji nowego użytkownika, gdzie użytkownik może założyć nowe konto.
 class NewAccountScreen extends StatefulWidget {
   const NewAccountScreen({super.key});
@@ -75,22 +76,31 @@ class _NewAccountScreenState extends State<NewAccountScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: colorScheme.primary,
-        title: Text('Create an Account',
-          style: textTheme.titleLarge?.copyWith(color: colorScheme.onPrimary),),
-        iconTheme: IconThemeData(color: colorScheme.onPrimary),
-      ),
-
-      body: SingleChildScrollView(
+        leading: IconButton(
+          icon:Icon(Icons.arrow_back, color: colorScheme.onPrimary,),
+           onPressed: (){
+             //Navigator.pop(context);
+             Navigator.pushAndRemoveUntil(
+              context,
+               MaterialPageRoute(builder: (context) => PatientList()), // Powrót na ekran listy pacjentów
+                   (Route<dynamic> route) => false,);
+      },tooltip: 'Go back',
+        ), title: Text('Create an Account',
+              style: textTheme.titleLarge?.copyWith(color: colorScheme.onPrimary),
+              ),
+              backgroundColor: colorScheme.primary,
+              //iconTheme: IconThemeData(color: colorScheme.onPrimary),
+              ),
+        body: SingleChildScrollView(
         child: Center(
           child:Padding(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const SizedBox(height: 80),
-             Text(
-          'Sign Up to Create an Account',
+          padding: const EdgeInsets.all(24),
+              child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+              const SizedBox(height: 80),
+              Text(
+              'Enter User Data to Create an Account',
           style: textTheme.headlineSmall?.copyWith(
           fontWeight: FontWeight.bold,
           //color: colorScheme.onSurface,
@@ -164,7 +174,7 @@ class _NewAccountScreenState extends State<NewAccountScreen> {
                   ),
                   backgroundColor: colorScheme.primary,
                 ),
-                child: Text('Sign Up',
+                child: Text('Save',
                   style: textTheme.bodyLarge?.copyWith(
                     color: colorScheme.onPrimary,
                     fontSize: 18,
@@ -173,13 +183,18 @@ class _NewAccountScreenState extends State<NewAccountScreen> {
                 ),
               ),
             ),
+
             const SizedBox(height: 16.0),
-            HaveAccountCheck(
+           /* HaveAccountCheck(
             login: false,
             press: (){
-              Navigator.pop(context);
+              Navigator.pushAndRemoveUntil(
+                context,
+                MaterialPageRoute(builder: (context) => PatientList()), // Powrót na ekran listy pacjentów
+                    (Route<dynamic> route) => false,
+              );
             },
-            ),
+            ),*/
           ],
           ),
         ),

@@ -127,7 +127,7 @@ class _PatientListState extends State<PatientList> {
               },
             ),
           IconButton(
-            icon: Icon(Icons.vpn_key, color: colorScheme.onPrimary),
+            icon: Icon(Icons.vpn_key_rounded, color: colorScheme.onPrimary),
             onPressed: () {
               //wylogowanie użytkownika, powrót do ekranu logowania
               Navigator.pushAndRemoveUntil(

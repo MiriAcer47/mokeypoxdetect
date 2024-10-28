@@ -1,4 +1,7 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:monkey/models/examination_image.dart';
 import '../models/patient.dart';
 import '../models/examination.dart';
 import '../database_helper.dart';
@@ -6,6 +9,7 @@ import 'examination_form.dart';
 import 'examination_image_list.dart';
 import 'package:intl/intl.dart';
 import 'alertDialog.dart';
+import 'package:share_plus/share_plus.dart';
 
 class ExaminationList extends StatefulWidget {
   final Patient patient;
@@ -59,6 +63,50 @@ class _ExaminationListState extends State<ExaminationList> {
         _deleteExamination(id);
       },
     );
+  }
+
+  Future<void> _shareExamination(Examination exam) async{
+    print('sending results');
+    String shareContent = '''
+    Patient: ${widget.patient.firstName} ${widget.patient.secondName}
+    Examination Date: ${dateFormat.format(exam.date)} 
+    Final Result: ${exam.finalResult == true ? 'Positive' : (exam.finalResult == false ? 'Negative' : 'Unknown')}
+    
+    Notes:
+    ${exam.notes ?? 'No notes'}
+    
+    ''';
+
+   try{
+      /*List<ExaminationImage> examImages = await dbHelper.getExaminationImages(exam.examinationID!);
+
+      List<XFile> xFiles = examImages
+      .map((img) => XFile(img.imgPath))
+      .where((xfile) => xfile.path.isNotEmpty && File(xfile.path).existsSync())
+      .toList();
+
+      if(xFiles.isNotEmpty) {
+        await Share.shareXFiles(
+          xFiles,
+          text: shareContent,
+          subject: 'Examination details ${widget.patient.firstName} ${widget
+              .patient.secondName}',
+        );
+      }else */ {
+
+        await Share.share(
+          shareContent,
+          subject: 'Examination details ${widget.patient.firstName} ${widget
+          .patient.secondName}',
+        );
+      }
+     print('results sent');
+    }catch(e){
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('There was promlen in sharing the examination. Try again.')),
+      );
+      print('Error sharing examination: $e');
+    }
   }
 
   @override
@@ -137,7 +185,7 @@ class _ExaminationListState extends State<ExaminationList> {
                   //Przycisk edycji badania
                   IconButton(
                     icon: Icon(Icons.send_outlined, color: colorScheme.surfaceTint),
-                    onPressed: () =>  _navigateToExaminationForm(exam: exam),
+                    onPressed: () =>  _shareExamination(exam),
                   ),
                   //Przycisk usunięcia badania
                   IconButton(

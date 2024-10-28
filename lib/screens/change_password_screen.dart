@@ -92,19 +92,57 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
     final textTheme = Theme.of(context).textTheme;
 
     return Scaffold(
-      appBar: AppBar(title: Text('Change Password')),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Form(
+      appBar: AppBar(
+        leading: IconButton(
+        icon:Icon(Icons.arrow_back, color: colorScheme.onPrimary,),
+    onPressed: (){
+      //Navigator.pop(context);
+      Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(builder: (context) => PatientList()), // Powrót na ekran listy pacjentów
+      (Route<dynamic> route) => false,);
+    },tooltip: 'Go back',),
+        title: Text(
+          'Change PIN',
+          style: textTheme.titleLarge?.copyWith(color: colorScheme.onPrimary),),
+        backgroundColor: colorScheme.primary,
+      ),
+        body: SingleChildScrollView(
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+        child: Center(
+    child: Column(
+    children: [
+    const SizedBox(height: 60),
+    Text(
+    'Update your PIN',
+    style: textTheme.headlineSmall?.copyWith(
+    fontWeight: FontWeight.bold,
+    //color: colorScheme.onSurface,
+    color: colorScheme.primary,
+    ),
+    textAlign: TextAlign.center,
+    ),
+    const SizedBox(height:20.0),
+    Text(
+    'Enter your current PIN and choose a new PIN to update it.',
+    style: textTheme.bodyMedium?.copyWith(
+    fontWeight: FontWeight.bold,
+    //color: colorScheme.onSurface,
+    color: colorScheme.primary,
+    ),
+    textAlign: TextAlign.center,
+    ),
+    const SizedBox(height: 40,),
+    Form(
           key: _formKey,
           child: Column(
             children: [
               TextFormField(
                 controller: _oldPinController,
                 decoration: InputDecoration(
-                  labelText: 'Old PIN',
-                  filled: true,
-                  fillColor: colorScheme.surface,
+                  labelText: 'Current PIN',
+                  prefixIcon: Padding(padding: const EdgeInsets.all(12), child: Icon(Icons.lock, color: colorScheme.primary),
+                  ),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
@@ -112,18 +150,20 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                 obscureText: true,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Please enter your old PIN';
+                    return 'Please enter your current PIN';
                   }
                   return null;
                 },
               ),
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
               TextFormField(
                 controller: _newPinController,
                 decoration: InputDecoration(
                   labelText: 'New PIN',
-                  filled: true,
-                  fillColor: colorScheme.surface,
+                  prefixIcon: Padding(
+                  padding: const EdgeInsets.all(12),
+                  child: Icon(Icons.lock_outline, color: colorScheme.primary),
+                  ),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
@@ -136,13 +176,15 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                   return null;
                 },
               ),
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
               TextFormField(
                 controller: _confirmNewPinController,
                 decoration: InputDecoration(
                   labelText: 'Confirm New PIN',
-                  filled: true,
-                  fillColor: colorScheme.surface,
+                  prefixIcon: Padding(
+                  padding: const EdgeInsets.all(12),
+                  child: Icon(Icons.lock_outline, color: colorScheme.primary),
+                  ),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
@@ -158,19 +200,34 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                   return null;
                 },
               ),
-              SizedBox(height: 20),
-              ElevatedButton(
+              const SizedBox(height: 48),
+                SizedBox(
+                width: MediaQuery.of(context).size.width * 0.6,
+                child: ElevatedButton(
                 onPressed: _changePassword,
-                child: Text('Change Password'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: colorScheme.primary,
-                  foregroundColor: colorScheme.onPrimary,
+                style:ElevatedButton.styleFrom(
+                padding: const EdgeInsets.symmetric(horizontal: 48, vertical: 16),
+                shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(25),
                 ),
-              ),
+                backgroundColor: colorScheme.primary,
+                ),
+                child: Text('Save',
+                style: textTheme.bodyLarge?.copyWith(
+                color: colorScheme.onPrimary,
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                ),
+                ),
+                ),
+                ),
             ],
           ),
         ),
-      ),
+    ],
+    ),
+    ),
+        ),
     );
   }
 }

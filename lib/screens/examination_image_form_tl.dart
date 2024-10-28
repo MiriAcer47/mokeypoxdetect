@@ -297,7 +297,7 @@ class _ExaminationImageFormState extends State<ExaminationImageFormTL> {
                       ),
                     ),
                   ),
-                  SizedBox(height: 24),
+                  SizedBox(height: 32),
                   Align(
                     alignment: Alignment.centerLeft,
                     child: Text(
@@ -305,10 +305,11 @@ class _ExaminationImageFormState extends State<ExaminationImageFormTL> {
                       style: textTheme.bodyLarge?.copyWith(
                         color: colorScheme.onSurface,
                         fontWeight: FontWeight.bold,
+                        fontSize: 18,
                       ),
                     ),
                   ),
-                  SizedBox(height: 8),
+                  SizedBox(height: 16),
                   ToggleButtons(
                     borderRadius: BorderRadius.circular(10),
                     isSelected: [_result == true, _result == false],
@@ -329,7 +330,7 @@ class _ExaminationImageFormState extends State<ExaminationImageFormTL> {
                       minHeight: 40.0,
                       minWidth: MediaQuery.of(context).size.width * 0.4,
                     ),
-                    children: [
+                    children: const [
                       Padding(
                         padding: EdgeInsets.symmetric(horizontal: 20),
                         child: Text('Positive'),
@@ -340,7 +341,7 @@ class _ExaminationImageFormState extends State<ExaminationImageFormTL> {
                       ),
                     ],
                   ),
-                  SizedBox(height: 16),
+                  SizedBox(height: 32),
                   // Wyświetlanie wyniku klasyfikacji
                   Text(
                       'Classification Result: ${(_classificationConfidence! * 100).toStringAsFixed(2)}%',
@@ -366,8 +367,32 @@ class _ExaminationImageFormState extends State<ExaminationImageFormTL> {
           height: 70,
           padding: EdgeInsets.symmetric(horizontal:16),
           child:Row(
-            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children:[
+              ElevatedButton.icon(
+                onPressed: _isSaving
+                    ? null
+                    : () {
+                  Navigator.pop(context);
+                },
+                icon: Icon(Icons.cancel, color: colorScheme.onPrimary),
+                label: Text(
+                  'Cancel',
+                  style: textTheme.bodyLarge?.copyWith(
+                    color: colorScheme.onPrimary,
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                style: ElevatedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(25),
+                  ),
+                  backgroundColor: colorScheme.secondary, // Different color for Cancel
+                ),
+              ),
+              // Save Image Button
               ElevatedButton.icon(
                 onPressed: _isSaving ? null : _saveImage,
                 icon: _isSaving
@@ -381,7 +406,7 @@ class _ExaminationImageFormState extends State<ExaminationImageFormTL> {
                 )
                     : Icon(Icons.save, color: colorScheme.onPrimary),
                 label: Text(
-                  '  Save Image  ',
+                  'Save Image',
                   style: textTheme.bodyLarge?.copyWith(
                     color: colorScheme.onPrimary,
                     fontSize: 16,
@@ -389,7 +414,7 @@ class _ExaminationImageFormState extends State<ExaminationImageFormTL> {
                   ),
                 ),
                 style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(horizontal: 48, vertical: 16),
+                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(25),
                   ),

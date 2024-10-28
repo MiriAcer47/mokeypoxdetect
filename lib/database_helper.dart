@@ -37,6 +37,7 @@ class DatabaseHelper {
     return db;
   }
 
+  
   ///Metoda wywołana podczas tworzenia bazy danych.
   ///Tworzy tabele i wstawia dane początkowe.
   ///
@@ -122,15 +123,19 @@ class DatabaseHelper {
     return await db.insert('User', user.toMap());
   }
 
-//Pobranie listy użytkowników
+  /// Pobiera listę wszystkich użytkowników z bazy danych.
+  ///
+  /// Zwraca:
+  /// - Listę obiektów typu User.
   Future<List<User>> getAllUsers() async {
     Database db = await instance.database;
     final List<Map<String, dynamic>> maps = await db.query('User');
     return List.generate(maps.length, (i) => User.fromMap(maps[i]));
   }
+
   ///Pobiera użytkownika na podstawie nazwy użytkownika.
   ///
-  /// Paramet:
+  /// Parametr:
   /// - [username]: Nazwa użytkownika do wyszukiwania.
   ///
   /// Zwraca:
@@ -192,6 +197,7 @@ class DatabaseHelper {
     Database db = await instance.database;
     return await db.insert('Patient', patient.toMap());
   }
+
   ///Pobiera listę wszystkich pacjentów z bazy.
   ///
   /// Zwraca:
