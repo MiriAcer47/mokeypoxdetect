@@ -12,8 +12,10 @@ class User {
   ///Email użytkownika.
   String email;
 
-  /// Konfiguracja konta użytkownika.
+  ///Status administracyjny użytkownika.
   bool isAdmin;
+
+  ///Status blokady konta użytkownika.
   bool isBlocked;
 
 
@@ -24,6 +26,8 @@ class User {
   /// - [username]: Nazwa użytkownika.
   /// - [pin]: PIN użytkownika.
   /// - [email]: Email użytkownika.
+  /// - [isAdmin]: Czy użytkownik ma status administratora (domyślnie `false`).
+  /// - [isBlocked]: Czy konto użytkownika jest zablokowane (domyślnie `false`).
   User({
     this.userID,
     required this.username,

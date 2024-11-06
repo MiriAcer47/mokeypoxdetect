@@ -13,28 +13,43 @@ import 'new_account_screen.dart';
 import 'change_password_screen.dart';
 import 'package:intl/intl.dart';
 
-//Klasa przedstawiająca ekran z listą pacjentów z metodami wyszukiwania pacjenta z listy, dodawania, edyci danych i usuwania pacjentów
+/// Klasa przedstawiająca ekran z listą pacjentów.
+///
+/// Umożliwia wyszukiwanie pacjentów, dodawanie, edycję oraz usuwanie pacjentów.
+/// Dodatkowo, jeśli użytkownik ma status administratora, umożliwia zarządzanie użytkownikami.
 class PatientList extends StatefulWidget {
   @override
   _PatientListState createState() => _PatientListState();
 }
 
 class _PatientListState extends State<PatientList> {
-  List<Patient> patients = []; //Lista pacjentów
-  List<Patient> filteredPatients = []; //Filtrowana lista pacjentów
+  ///Lista wszystkich pacjentów pobrana z bazy danych.
+  List<Patient> patients = [];
+
+  ///Lista filtrowanych pacjentów na podstawie zapytania wyszukiwania.
+  List<Patient> filteredPatients = [];
+
+  ///Instancja klasy 'DatabaseHelper' do interakcji z bazą danych.
   final dbHelper = DatabaseHelper.instance;
+
+  ///Formatowanie daty w formacie 'yyyy-MM-dd'.
   final dateFormat = DateFormat('yyyy-MM-dd');
 
+  ///Kontroler pola wyszukiwania.
   TextEditingController _searchController = TextEditingController(); //kontroler pola wyszukiwania
+
+  ///Aktualne zapytanie wyszukiwania.
   String _searchQuery = '';
 
+  ///Metoda wywoływana podczas inicjalizacji stanu.
   @override
   void initState() {
     super.initState();
     _searchController.addListener(_onSearchChanged);
-    _refreshPatients(); //obranie listy pacjentów z bazy
+    _refreshPatients(); //Pobranie listy pacjentów z bazy
   }
 
+  ///Metoda wywoływana przy zamykaniu widgetu.
   @override
   void dispose() {
     _searchController.removeListener(_onSearchChanged);
@@ -42,7 +57,9 @@ class _PatientListState extends State<PatientList> {
     super.dispose();
   }
 
-  //Metoda wywoływana przy zmianie tekstu w polu wyszukiwania
+  /// Metoda wywoływana przy zmianie tekstu w polu wyszukiwania.
+  ///
+  /// Aktualizuje zapytanie wyszukiwania i filtruje listę pacjentów.
   void _onSearchChanged() {
     setState(() {
       _searchQuery = _searchController.text.trim().toLowerCase();
@@ -50,13 +67,15 @@ class _PatientListState extends State<PatientList> {
     });
   }
 
-  //Pobranie pacjentów z bazy danych i ich filtracja
+  ///Pobranie pacjentów z bazy danych i aktualizacja listy pacjentów.
   void _refreshPatients() async {
     patients = await dbHelper.getPatients();
     _filterPatients();
   }
 
-  //Filtracja pacjentów po imieniu, nazwisku, numerze pesel
+  ///Filtruje listę pacjentów na podstawie aktualnego zapytania wyszukiwania.
+  ///
+  ///Filtruje pacjentów po imieniu, nazwisku, numerze PESEL.
   void _filterPatients() {
     if (_searchQuery.isEmpty) {
       filteredPatients = patients;
@@ -70,13 +89,19 @@ class _PatientListState extends State<PatientList> {
     setState(() {});
   }
 
-  //Usunięcie pacjentów z bazy
+  ///Usuwa pacjenta z bazy danych na podstawie jego ID.
+  ///
+  /// Parametr:
+  /// - [id]: ID pacjenta do usunięcia.
   void _deletePatient(int id) async {
     await dbHelper.deletePatient(id);
     _refreshPatients();
   }
 
-  //Przejście do formularza dodawania/edytowania pacjentów
+  ///Nawiguje do formularza dodawania lub edycji pacjenta.
+  ///
+  /// Parametr:
+  /// - [patient]: Opcjonalny obiekt 'Patient' do edycji. Jeśli null, formularz do dodawania nowego pacjenta.
   void _navigateToPatientForm({Patient? patient}) async {
     await Navigator.push(
       context,
@@ -87,6 +112,10 @@ class _PatientListState extends State<PatientList> {
     _refreshPatients();
   }
 
+  ///WYświetla okno dialogowe potwierdzające usunięcie pacjenta.
+  ///
+  /// Parametr:
+  ///  - [id]: ID pacjenta do usunięcia.
   void _confirmDeletePatient(int id){
     CCupertinoAlertDialog.show(
       context: context,
@@ -98,12 +127,19 @@ class _PatientListState extends State<PatientList> {
     );
   }
 
-
+  /// Buduje interfejs użytkownika ekranu z listą pacjentów.
   @override
   Widget build(BuildContext context) {
-    final currentUser = SessionManager().getLoggedInUser();  // Pobieramy aktualnie zalogowanego użytkownika
-    final isAdmin = currentUser?.isAdmin ?? false;  // Sprawdzamy, czy użytkownik jest administratorem
+    ///Pobiera aktualnie zalogowanego użytkownika.
+    final currentUser = SessionManager().getLoggedInUser();
+
+    /// Sprawdza, czy użytkownik ma status administratora.
+    final isAdmin = currentUser?.isAdmin ?? false;
+
+    ///Pobiera schemat kolorów.
     final colorScheme = Theme.of(context).colorScheme;
+
+    ///Pobiera styl tekstu.
     final textTheme = Theme.of(context).textTheme;
     return Scaffold(
       appBar: AppBar(
@@ -115,33 +151,33 @@ class _PatientListState extends State<PatientList> {
         iconTheme: IconThemeData(color: colorScheme.onPrimary),
         backgroundColor: colorScheme.primary,
         actions: [
-          if (isAdmin)  // Wyświetlamy ikonę tylko jeśli użytkownik jest adminem
+          if (isAdmin)  // Wyświetla ikonę tylko jeśli użytkownik jest adminem
             IconButton(
-              icon: Icon(Icons.admin_panel_settings),
+              icon: const Icon(Icons.admin_panel_settings),
               onPressed: () {
                 // Przejście do ekranu zarządzania użytkownikami
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => UserManagementScreen()),
+                  MaterialPageRoute(builder: (context) => const UserManagementScreen()),
                 );
               },
             ),
           IconButton(
             icon: Icon(Icons.vpn_key_rounded, color: colorScheme.onPrimary),
             onPressed: () {
-              //wylogowanie użytkownika, powrót do ekranu logowania
+              //Przejście do ekranu zmiany hasła.
               Navigator.pushAndRemoveUntil(
                 context,
-                MaterialPageRoute(builder: (context) => ChangePasswordScreen()),
+                MaterialPageRoute(builder: (context) => const ChangePasswordScreen()),
                     (Route<dynamic> route) => false,
               );
             },
           ),
-          if (isAdmin)  // Wyświetlamy ikonę tylko jeśli użytkownik jest adminem
+          if (isAdmin)  // Wyświetla ikonę tylko jeśli użytkownik jest adminem
             IconButton(
               icon: Icon(Icons.person_add, color: colorScheme.onPrimary),
               onPressed: () {
-                //wylogowanie użytkownika, powrót do ekranu logowania
+                //Przejście do ekranu tworzenia nowego konta użytkownika.
                 Navigator.pushAndRemoveUntil(
                   context,
                   MaterialPageRoute(builder: (context) => const NewAccountScreen()),
@@ -152,7 +188,7 @@ class _PatientListState extends State<PatientList> {
           IconButton(
             icon: Icon(Icons.logout, color: colorScheme.onPrimary),
             onPressed: () {
-              //wylogowanie użytkownika, powrót do ekranu logowania
+              //Wylogowanie użytkownika, powrót do ekranu logowania.
               SessionManager().logout();
               Navigator.pushAndRemoveUntil(
                 context,
@@ -168,6 +204,7 @@ class _PatientListState extends State<PatientList> {
           padding: const EdgeInsets.all(16),
           child: Column(
             children: [
+              //POle wyszukiwania pacjentów.
               Padding(
                 padding: const EdgeInsets.all(8),
                 child: TextField(
@@ -183,15 +220,16 @@ class _PatientListState extends State<PatientList> {
                     color: colorScheme.outline,
                     ),
             ),
-                  contentPadding: EdgeInsets.all(12),
+                  contentPadding: const EdgeInsets.all(12),
                 ),
                 style: textTheme.bodyMedium?.copyWith(
-                    color: colorScheme.onSurface, // Text color for the search
+                    color: colorScheme.onSurface,
                   ),
         ),
 
     ),
-          SizedBox(height: 16.0),
+          const SizedBox(height: 16.0),
+
           //lista pacjentów
            ListView.builder(
               shrinkWrap: true,

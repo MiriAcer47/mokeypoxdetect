@@ -7,28 +7,57 @@ import '../database_helper.dart';
 import 'package:intl/intl.dart';
 
 
-//Klasa przedstawiająca formularz dodawania lub edycji danych pacjenta
+/// Klasa przedstawiająca formularz dodawania lub edycji danych pacjenta.
+///
+/// Umożliwia użytkownikowi wprowadzenie lub modyfikację informacji o pacjencie, takich jak imię, nazwisko,
+/// płeć, data urodzenia, numer telefonu, email oraz PESEL.
+/// Po zapisaniu danych, użytkownik jest przekierowany z powrotem do listy pacjentów.
 class PatientForm extends StatefulWidget {
+  ///Obiekt 'Patient' do edycji. Jeśli jest 'null', formularz służy do dodawania nowego pacjenta.
   final Patient? patient;
 
-  const PatientForm({this.patient});
+  ///Konstruktor klasy 'PatientFrom'.
+  ///
+  /// Parametr:
+  /// - [patient]: Opcjonalny obiekt 'Patient' do edycji.
+  const PatientForm({super.key, this.patient});
 
   @override
   _PatientFormState createState() => _PatientFormState();
 }
 
 class _PatientFormState extends State<PatientForm> {
+  /// Klucz formularza do zarządzania walidacją.
   final _formKey = GlobalKey<FormState>();
+
+  /// Instancja klasy 'DatabaseHelper' do interakcji z bazą danych.
   final dbHelper = DatabaseHelper.instance;
 
+  /// Imię pacjenta.
   late String _firstName;
+
+  /// Nazwisko pacjenta.
   late String _secondName;
+
+  /// Płeć pacjenta ('M'  dla mężczyzny, 'F' dla kobiety)
   late String _gender;
+
+  /// Data urodzenia pacjenta.
   late DateTime _birthDate;
+
+  /// Numer telefonu pacjenta.
   String? _telNo;
+
+  /// Email pacjenta.
   String? _email;
+
+  /// Numer PESEL pacjenta.
   String? _pesel;
 
+
+  /// Metoda wywoływana podczas inicjalizacji stanu.
+  ///
+  /// Jeśli edytujemy istniejącego pacjenta, wczytuje jego dane do formularza.
   @override
   void initState() {
     super.initState();
@@ -53,7 +82,10 @@ class _PatientFormState extends State<PatientForm> {
     }
   }
 
-//Metoda zapisu danych pacjenta
+  /// Metoda zapisująca dane pacjenta do bazy.
+  ///
+  /// Jeśli pacjent jest nowy, dodaje go do bazy. W przeciwnym razie, aktualizuje istniejący rekord.
+  /// Po zapisaniu, przekierowuje użytkownika z powrotem do listy pacjentów.
   Future<void> _savePatient() async {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
@@ -82,7 +114,7 @@ class _PatientFormState extends State<PatientForm> {
           MaterialPageRoute(builder: (context) => PatientList()),
         );
       } catch(e) {
-    // Handle any errors with saving
+    // Obsługa błędu podczas zapisywania.
     print('Error saving patient: $e');
     ScaffoldMessenger.of(context).showSnackBar(
     const SnackBar(content: Text('Error saving patient. Please try again.')),
@@ -95,7 +127,12 @@ class _PatientFormState extends State<PatientForm> {
   }
 }
 
-  //Metoda pozwalająca na wybór daty urodzenia w kalendarzu
+  ///Metoda wywoływana podczas wyboru daty urodzenia w kalendarzu.
+  ///
+  /// Parametr:
+  /// - [context]: Kontekst aplikacji.
+  ///
+  /// Aktualizuje datę urodzenia pacjenta, jeśli użytkownik wybierze nową datę.
   Future<void> _selectBirthDate(BuildContext context) async {
 
     final DateTime? picked = await showDatePicker(
@@ -112,6 +149,7 @@ class _PatientFormState extends State<PatientForm> {
     }
   }
 
+  /// Buduje interfejs użytkownika formularza pacjenta.
   @override
   Widget build(BuildContext context) {
     final dateFormat = DateFormat('yyyy-MM-dd');
@@ -236,6 +274,7 @@ class _PatientFormState extends State<PatientForm> {
                     onTap: () => _selectBirthDate(context),
                   ),
                   const SizedBox(height: 20),
+
                 //Pole tekstowe numetu telefonu
                 TextFormField(
                   initialValue: _telNo,
@@ -253,6 +292,7 @@ class _PatientFormState extends State<PatientForm> {
                   onSaved: (value) => _telNo = value,
                 ),
                   const SizedBox(height: 16),
+
                 //Pole tekstowe adresu e-mail
                 TextFormField(
                   initialValue: _email,
@@ -269,6 +309,7 @@ class _PatientFormState extends State<PatientForm> {
                   onSaved: (value) => _email = value,
                 ),
                   const SizedBox(height: 20),
+
                 //Pole tekstowe numeru pesel
                 TextFormField(
                   initialValue: _pesel,

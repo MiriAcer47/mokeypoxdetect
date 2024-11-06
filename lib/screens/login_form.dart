@@ -5,7 +5,9 @@ import '../services/session_manager.dart';
 import 'patient_list.dart';
 import 'package:bcrypt/bcrypt.dart';
 
-///Klasa przedstawia formularz logowania, umożliwiający użytkownikowu zalogowanie do aplikacji poprzez podanie nazwy użytkownika oraz PINu.
+///Klasa przedstawia formularz logowania.
+///
+///Umożliwia użytkownikowu zalogowanie do aplikacji poprzez podanie nazwy użytkownika oraz PINu.
 ///Po poprawnym wprowadzeniu danych następuje przekierowanie do ekranu z listą pacjentów.
 class LoginForm extends StatefulWidget {
   const LoginForm({super.key});
@@ -15,19 +17,21 @@ class LoginForm extends StatefulWidget {
 }
 
 
-///Stan aplikacji dla ekranu logowania. Zarządza kontrolerami tekstu, logiką walidacji i funkcją logowania.
+///Stan aplikacji dla ekranu logowania.
+///
+///Zarządza kontrolerami tekstu, logiką walidacji i funkcją logowania.
 class _LoginFormState extends State<LoginForm> {
-  final _formKey = GlobalKey<FormState>(); //klucz do zarząrzania walidacją.
+  final _formKey = GlobalKey<FormState>(); //klucz formularza do zarząrzania walidacją.
   final _usernameController = TextEditingController(); //kontoler pola nazwy użytkownika.
   final _pinController = TextEditingController(); //kontoler pola PIN.
   final dbHelper = DatabaseHelper.instance; //instancja klasy DatabaseHelper
 
   ///Metoda logowania użytkownika.
+  ///
   ///Sprawdza czy użytkownik istnieje oraz czy podany PIN jest poprawny,
   Future<void> _login() async {
     if (_formKey.currentState!.validate()) {
-      String username = _usernameController.text
-          .trim(); //Pobiera i czyści nazwę użtkownika.
+      String username = _usernameController.text.trim(); //Pobiera i czyści nazwę użtkownika.
       String pin = _pinController.text.trim(); //Pobiera i czyści PIN.
 
       try {
@@ -39,16 +43,15 @@ class _LoginFormState extends State<LoginForm> {
         if (user != null) {
           if (user.isBlocked) {
             print('This account has been blocked');
-            // Jeśli użytkownik jest zablokowany, wyświetlamy komunikat i przerywamy logowanie.
+            // Jeśli użytkownik jest zablokowany, wyświetlany jest  komunikat i przerywane logowanie.
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(content: Text('This account has been blocked. Please contact the administrator.')),
             );
-            return; // Zatrzymujemy logowanie
+            return; // Zatrzymanie logowania
           }
           bool isPinValid = BCrypt.checkpw(pin, user.pin);
 
-          //Jeśli dane są poprawne przejście do listy pacjentów.
-
+          //Jeśli dane są poprawne, przejście do listy pacjentów.
           if (isPinValid) {
             // Logowanie pomyślne, ustawiamy użytkownika w session managerze
             SessionManager().login(user);
@@ -68,7 +71,7 @@ class _LoginFormState extends State<LoginForm> {
             );
         }
       } catch (e) {
-        //Obsługa błędu - przy braku połączenia z bazu wyświetla komunikat  o błędzie.
+        //Obsługa błędu - przy braku połączenia z bazą wyświetla komunikat  o błędzie.
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text(
             'Error connecting to the database. Please try again.')),
         );
@@ -84,6 +87,7 @@ class _LoginFormState extends State<LoginForm> {
     super.dispose();
   }
 
+  ///Metoda budująca interfejs użytkownika formularza logowania.
   @override
   Widget build(BuildContext context){
     final colorScheme = Theme.of(context).colorScheme;

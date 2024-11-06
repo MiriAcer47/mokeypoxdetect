@@ -1,10 +1,18 @@
 import "package:flutter/material.dart";
 
+///Klasa zarządzająca motywami aplikacji opartymi na Material Design.
+///Umoźliwia tworzenie różnych schematów kolorów (light/dark)
 class MaterialTheme {
   final TextTheme textTheme;
 
+///Konstruktor klas MaterialTheme
+  ///
+  /// Przyjmuje jako parametr 'TextTheme'
   const MaterialTheme(this.textTheme);
 
+  ///Tworzy schemat kolorów dla trybu jasnego.
+  ///
+  /// Zwraca instancję MaterialScheme z predefiniowanymi kolorami.
   static MaterialScheme lightScheme() {
     return const MaterialScheme(
       brightness: Brightness.light,
@@ -61,11 +69,14 @@ class MaterialTheme {
 
     );
   }
-
+  ///Tworzy instancję ThemeData dla trybu jasnego
+  ///
+  /// Używa schematu kolorów stworzonego przez lighthScheme()
   ThemeData light() {
     return theme(lightScheme().toColorScheme());
   }
 
+  ///Tworzy schemat kolorów dla trybu jasnego ze średnim kontrastem.
   static MaterialScheme lightMediumContrastScheme() {
     return const MaterialScheme(
       brightness: Brightness.light,
@@ -120,11 +131,12 @@ class MaterialTheme {
       surfaceContainerHighest: Color(4293255906),
     );
   }
-
+///Tworzy instancję ThemeData dla trybu jasnego ze średnim kontrastem.
   ThemeData lightMediumContrast() {
     return theme(lightMediumContrastScheme().toColorScheme());
   }
 
+  ///Tworzy schemat kolorów dla trybu jasnego z wysokim kontrastem.
   static MaterialScheme lightHighContrastScheme() {
     return const MaterialScheme(
       brightness: Brightness.light,
@@ -180,10 +192,12 @@ class MaterialTheme {
     );
   }
 
+  ///Tworzy instancję ThemeData dla trybu jasnego z wysokim kontrastem.
   ThemeData lightHighContrast() {
     return theme(lightHighContrastScheme().toColorScheme());
   }
 
+  ///Tworzy schemat kolorów dla trybu ciemnego.
   static MaterialScheme darkScheme() {
     return const MaterialScheme(
       brightness: Brightness.dark,
@@ -238,11 +252,12 @@ class MaterialTheme {
       surfaceContainerHighest: Color(4281676853),
     );
   }
-
+///Tworzy instancję ThemeData dla trybu ciemnego.
   ThemeData dark() {
     return theme(darkScheme().toColorScheme());
   }
 
+  ///Tworzy schemat kolorów dla trybu ciemnego ze średnim kontrastem.
   static MaterialScheme darkMediumContrastScheme() {
     return const MaterialScheme(
       brightness: Brightness.dark,
@@ -298,10 +313,12 @@ class MaterialTheme {
     );
   }
 
+  ///Tworzy instancję ThemeData dla trybu ciemnego ze średnim kontrastem.
   ThemeData darkMediumContrast() {
     return theme(darkMediumContrastScheme().toColorScheme());
   }
 
+  ///Tworzy schemat kolorów dla trybu ciemnego z wysokim kontrastem.
   static MaterialScheme darkHighContrastScheme() {
     return const MaterialScheme(
       brightness: Brightness.dark,
@@ -357,11 +374,14 @@ class MaterialTheme {
     );
   }
 
+  ///Tworzy instancję ThemeData dla trybu ciemnego z wysokim kontrastem.
   ThemeData darkHighContrast() {
     return theme(darkHighContrastScheme().toColorScheme());
   }
 
-
+  ///Tworzy obiekt 'ThemeData' na podstawie dostarczonego 'ColorScheme'
+  ///
+  /// Ustawia różne właściwości motywu, takie jak tekst, tło, kolor.
   ThemeData theme(ColorScheme colorScheme) => ThemeData(
     useMaterial3: true,
     brightness: colorScheme.brightness,
@@ -374,12 +394,16 @@ class MaterialTheme {
     canvasColor: colorScheme.surface,
   );
 
-
+///Lista rozszerzonych kolorów potencjalnie używanych w aplikacji.
   List<ExtendedColor> get extendedColors => [
   ];
 }
-
+///Klasa reprezentująca schemat kolorów w Material Design.
+///Zawiera wszystkie potrzebne kolory dla różnych elementów interfejsów.
 class MaterialScheme {
+  ///Konstruktor klasy 'MaterialScheme'
+  ///
+  /// Przyjmuje wszystkie potrzebne kolory jako parametry.
   const MaterialScheme({
     required this.brightness,
     required this.primary,
@@ -484,8 +508,11 @@ class MaterialScheme {
   final Color surfaceContainerHigh;
   final Color surfaceContainerHighest;
 }
-
+///Roszerzenie na klasę 'MaterialScheme', umożliwiające konwersję na 'ColorScheme'.
 extension MaterialSchemeUtils on MaterialScheme {
+  ///Konwertuje 'MaterialScheme' na obiekt 'ColorScheme'.
+  ///
+  /// Umożliwia użycie schematu kolorów w 'ThemeData'.
   ColorScheme toColorScheme() {
     return ColorScheme(
       brightness: brightness,
@@ -521,7 +548,7 @@ extension MaterialSchemeUtils on MaterialScheme {
     );
   }
 }
-
+///Klasa reprezentująca rozszerzony kolor.
 class ExtendedColor {
   final Color seed, value;
   final ColorFamily light;
@@ -531,6 +558,9 @@ class ExtendedColor {
   final ColorFamily darkHighContrast;
   final ColorFamily darkMediumContrast;
 
+  ///Konstruktor klasy 'ExtendedColor'.
+  ///
+  /// Przyjmuje kolory dla różnych wariantów kontrastu i trybów jasnego/ciemnego.
   const ExtendedColor({
     required this.seed,
     required this.value,
@@ -542,8 +572,9 @@ class ExtendedColor {
     required this.darkMediumContrast,
   });
 }
-
+///Klasa reprezentująca rodzinę kolorów z odpowiednimi kontrastami.
 class ColorFamily {
+  ///Konstruktor klasy 'ColorFamily'
   const ColorFamily({
     required this.color,
     required this.onColor,

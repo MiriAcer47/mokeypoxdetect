@@ -3,11 +3,13 @@ import 'package:flutter/material.dart';
 import 'login_form.dart';
 //import 'have_account_check.dart';
 
-///Klasa przedstawiająca ekran logowania, który składa się z formularza logowania.
-///W przypadku braku konta umożliwia przejście do ekranu rejestracji.
+///Klasa przedstawiająca ekran logowania użytkownika.
+///
+///Zawiera formularz logowania.
   class LoginScreen extends StatelessWidget{
   const LoginScreen({super.key});
 
+  ///Metoda budująca interfejs użytkownika ekranu logowania.
   @override
   Widget build(BuildContext context) {
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
@@ -28,6 +30,7 @@ import 'login_form.dart';
 
               children: [
                 const SizedBox(height: 40.0),
+                //Obraz na ekranie logowania.
                 Image.asset(
                   'assets/images/img22_loginscreen.png',
                   height: 200.0,
@@ -45,7 +48,6 @@ import 'login_form.dart';
                 const SizedBox(height: 48.0),
                 //Formularz logowania
                 const LoginForm(),
-                //Opcja przejścia do ekranu rejestracji.
                 const SizedBox(height: 16.0),
                 /*HaveAccountCheck(
                   login: true,

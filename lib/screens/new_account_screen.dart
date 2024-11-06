@@ -17,14 +17,25 @@ class NewAccountScreen extends StatefulWidget {
 }
 
 class _NewAccountScreenState extends State<NewAccountScreen> {
-  final _formKey = GlobalKey<FormState>(); //klucz do identyfikacji i walidacji formularza.
-  final _usernameController = TextEditingController(); //Kontroler pola nazwy uzytkownika
-  final _pinController = TextEditingController(); //Kontroler pola PIN
-  final _emailController = TextEditingController(); //Kontroler pola adresu e-mail
+
+  /// Klucz formularza do identyfikacji i walidacji formularza.
+  final _formKey = GlobalKey<FormState>();
+
+  /// Kontroler pola nazy użytkownika.
+  final _usernameController = TextEditingController();
+
+  /// Kontroler pola PIN.
+  final _pinController = TextEditingController();
+
+  /// Kontroler pola adresu e-mail.
+  final _emailController = TextEditingController();
+
+  /// Instancja klasy 'DatabaseHelper' do interakcji z bazą danych.
   final dbHelper = DatabaseHelper.instance;
 
   ///Metoda rejestracji nowego użytkownika przy użyciu wprowadznych danych.
-  ///WYświetle komunikat o powodzeniu lub blędzie.
+  ///
+  ///Wyświetle komunikat o powodzeniu lub blędzie.
   Future<void> _signup() async {
     //Walidacja danych formularza
     if (_formKey.currentState!.validate()) {
@@ -61,6 +72,7 @@ class _NewAccountScreenState extends State<NewAccountScreen> {
     }
   }
 
+  /// Usuwa kontrolery przy zamykaniu widgetu.
   @override
   void dispose() {
     _usernameController.dispose();
@@ -69,6 +81,7 @@ class _NewAccountScreenState extends State<NewAccountScreen> {
     super.dispose();
   }
 
+  /// Buduje interfejs użytkownika ekranu rejestracji nowego użytkownika.
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
@@ -80,11 +93,13 @@ class _NewAccountScreenState extends State<NewAccountScreen> {
           icon:Icon(Icons.arrow_back, color: colorScheme.onPrimary,),
            onPressed: (){
              //Navigator.pop(context);
+             // Powrót na ekran listy pacjentów.
              Navigator.pushAndRemoveUntil(
               context,
                MaterialPageRoute(builder: (context) => PatientList()), // Powrót na ekran listy pacjentów
                    (Route<dynamic> route) => false,);
-      },tooltip: 'Go back',
+      },
+          tooltip: 'Go back',
         ), title: Text('Create an Account',
               style: textTheme.titleLarge?.copyWith(color: colorScheme.onPrimary),
               ),
@@ -161,8 +176,6 @@ class _NewAccountScreenState extends State<NewAccountScreen> {
                 validator: (value) => value!.isEmpty ? 'Please enter a PIN' : null,
               ),
               const SizedBox(height: 48.0),
-              //Przycisk rejestracji użytkownika - sign up
-
             SizedBox(
               width: MediaQuery.of(context).size.width * 0.6,
               child: ElevatedButton(

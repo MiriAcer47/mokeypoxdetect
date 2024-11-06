@@ -10,10 +10,22 @@ import 'package:intl/intl.dart';
 import 'dart:io';
 import 'alertDialog.dart';
 
+/// Klasa przedstawiająca formularz dodawania lub edycji badania pacjenta.
+///
+/// Umożliwia użytkownikowi wprowadzenie lub edycję informacji o badaniu.
+/// Po zapisaniu danych użytkownik zostaje przekierowany do listy z badaniami pacjenta.
 class ExaminationForm extends StatefulWidget {
+  /// Pacjent, do którego przypisane jest badanie.
   final Patient patient;
+
+  /// Obiekt 'Examination' do edycji. Jeśli jest 'null', formularz służy do dodawania nowego badania.
   Examination? examination;
 
+  /// Konstruktor klasy 'ExaminationForm'
+  ///
+  /// Parametry:
+  /// - [patient]: Obiekt pacjenta, dla którego tworzone lub edytowane jest badanie.
+  /// - [examination]: Opcjonalny obieky badania do edycji.
   ExaminationForm({super.key, required this.patient, this.examination});
 
   @override
@@ -21,15 +33,30 @@ class ExaminationForm extends StatefulWidget {
 }
 
 class _ExaminationFormState extends State<ExaminationForm> {
+  /// Klucz formularza do zarządzania walidacją.
   final _formKey = GlobalKey<FormState>();
+
+  /// Instancja klasy 'DatabaseHelper' do interakcji z bazą danych.
   final dbHelper = DatabaseHelper.instance;
 
+  /// Data badania.
   late DateTime _date;
-  bool? _finalResult;
-  String? _notes;
-  List<ExaminationImage> images = [];
-  bool _isSaving = false; // Flaga informująca o trakcie zapisywania
 
+  /// Wynik końcowy badania (true - pozytywny, false - negatywny)
+  bool? _finalResult;
+
+  /// Notatki związane z badaniem.
+  String? _notes;
+
+  /// Lista zdjęć związanych z badaniem.
+  List<ExaminationImage> images = [];
+
+  /// Flaga informująca o trakcie zapisywania badania.
+  bool _isSaving = false;
+
+  /// Metoda wywoływana podczas inicjalizacji stanu.
+  ///
+  /// Ustawia początkowe wartości pól formularza na podstawie przekazanego obiektu badania lub ustawia domyślne wartości dla nowego badania.
   @override
   void initState() {
     super.initState();
@@ -45,6 +72,9 @@ class _ExaminationFormState extends State<ExaminationForm> {
     }
   }
 
+  /// Ładuje zdjęcie związane z badaniam z bazy danych.
+  ///
+  /// Jeśli badanie istnieje, pobiera listę zdjęć dla tego badania z bazy.
   Future<void> _loadImages() async {
     if (widget.examination != null && widget.examination!.examinationID != null) {
       images = await dbHelper.getExaminationImages(widget.examination!.examinationID!);
@@ -52,11 +82,21 @@ class _ExaminationFormState extends State<ExaminationForm> {
     }
   }
 
+  /// Usuwa zdjęcie z badania na podstawie jego ID.
+  ///
+  /// Parametr:
+  /// - [imageID]: ID zdjęcia do usunięcia.
+  ///
+  /// Po usunięciu zdjęcia, odswieża listę zdjęć.
   void _deleteImage(int imageID) async {
     await dbHelper.deleteExaminationImage(imageID);
-    _loadImages(); // Odśwież listę zdjęć po usunięciu
+    _loadImages();
   }
 
+  /// Zapisuje badanie do bazy danych.
+  ///
+  /// Jeśli badanie jest nowe, dodaje je do bazy. W przeciwnym razie, aktualizuje istniejący rekord.
+  /// Po zapisaniu, przekierowuje użytkownika z powrotem do listy badań pacjenta.
   Future<void> _saveExamination({bool showSnackbar = true}) async {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
@@ -93,7 +133,7 @@ class _ExaminationFormState extends State<ExaminationForm> {
 
         if (showSnackbar) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Examination saved successfully.')),
+            const SnackBar(content: Text('Examination saved successfully.')),
           );
           Navigator.pop(context);
         }
@@ -101,7 +141,7 @@ class _ExaminationFormState extends State<ExaminationForm> {
         // Obsługa błędów przy zapisywaniu
         print('Error saving examination: $e');
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
+          const SnackBar(
               content:
               Text('Error saving examination. Please try again.')),
         );
@@ -113,6 +153,12 @@ class _ExaminationFormState extends State<ExaminationForm> {
     }
   }
 
+  /// Metoda wywoływana przy wyborze daty badania w kalendarzu.
+  ///
+  /// Parametr:
+  /// - [context]: Kontekst aplikacji.
+  ///
+  /// Aktualizuje datę badania, jeśli użytkownik wybierze nową datę.
   Future<void> _selectExaminationDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
       context: context,
@@ -145,6 +191,10 @@ class _ExaminationFormState extends State<ExaminationForm> {
     }
   }
 
+  /// Wyświetla okno dialogowe potwierdzające usunięcie zdjęcia z badania.
+  ///
+  /// Parametr:
+  /// - [id]: ID zdjęcia do usunięcia.
   void _confirmDeleteImage(int id) {
     CCupertinoAlertDialog.show(
       context: context,
@@ -156,6 +206,10 @@ class _ExaminationFormState extends State<ExaminationForm> {
     );
   }
 
+  /// Nawiguje do ekrany dodawania zdjęcia.
+  ///
+  /// Parametr:
+  /// - [typ]: Typ zdjęcia (1: take photo, 2: select from gallery)
   Future<void> _navigateToImageForm(int typ) async {
     // Sprawdzenie, czy badanie jest zapisane
     if (widget.examination == null || widget.examination!.examinationID == null) {
@@ -164,7 +218,7 @@ class _ExaminationFormState extends State<ExaminationForm> {
       if (widget.examination == null || widget.examination!.examinationID == null) {
         // Jeśli zapisanie się nie powiodło, przerwij akcję
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('You cannot add a photo without a saved exam.')),
+          const SnackBar(content: Text('You cannot add a photo without a saved exam.')),
         );
         return;
       }
@@ -180,6 +234,7 @@ class _ExaminationFormState extends State<ExaminationForm> {
     _loadImages();
   }
 
+  /// Buduje interfejs użytkownika formularza badania pacjenta.
   @override
   Widget build(BuildContext context) {
     final dateFormat = DateFormat('yyyy-MM-dd');
@@ -218,7 +273,7 @@ class _ExaminationFormState extends State<ExaminationForm> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Pole wyboru daty
+                      /// Pole wyboru daty badania.
                       TextFormField(
                         readOnly: true,
                         decoration: InputDecoration(
@@ -244,7 +299,7 @@ class _ExaminationFormState extends State<ExaminationForm> {
                         },
                       ),
                       const SizedBox(height: 20),
-                      // Przełącznik Wyniku Końcowego
+                      /// Przełącznik wyboru wyniku końcowego badania.
                       Text(
                         'Final Result',
                         style: textTheme.bodyLarge?.copyWith(
@@ -280,7 +335,8 @@ class _ExaminationFormState extends State<ExaminationForm> {
                         ],
                       ),
                       const SizedBox(height: 20),
-                      // Pole Notatek
+
+                      /// Pole tekstowe do wpisywania notatek.
                       TextFormField(
                         initialValue: _notes,
                         decoration: InputDecoration(
@@ -298,7 +354,8 @@ class _ExaminationFormState extends State<ExaminationForm> {
                         ),
                       ),
                       const SizedBox(height: 20),
-                      // Zdjęcia z badania
+
+                      /// Wyświetlanie zdjęć związanych z badaniem.
                       Text(
                         'Photos',
                         style: textTheme.bodyLarge?.copyWith(
@@ -376,7 +433,7 @@ class _ExaminationFormState extends State<ExaminationForm> {
         padding: const EdgeInsets.all(16.0),
         child: Row(
           children: [
-            // Przycisk Save
+            /// Przycisk Save
             Expanded(
               child: ElevatedButton.icon(
                 onPressed: _isSaving
@@ -404,7 +461,7 @@ class _ExaminationFormState extends State<ExaminationForm> {
               ),
             ),
             const SizedBox(width: 8),
-            // Przycisk Take Photo
+            /// Przycisk Take Photo.
             Expanded(
               child: ElevatedButton.icon(
                 onPressed: _isSaving
@@ -417,7 +474,7 @@ class _ExaminationFormState extends State<ExaminationForm> {
                     if (widget.examination == null ||
                         widget.examination!.examinationID == null) {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
+                        const SnackBar(
                             content: Text(
                                 'Cannot add a photo without a saved study.')),
                       );
@@ -447,6 +504,8 @@ class _ExaminationFormState extends State<ExaminationForm> {
               ),
             ),
             const SizedBox(width: 8),
+
+            /// Przycisk Add Photo.
             Expanded(
               child: ElevatedButton.icon(
                 onPressed: _isSaving

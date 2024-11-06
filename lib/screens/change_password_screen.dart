@@ -5,6 +5,10 @@ import '../database_helper.dart';
 import '../models/user.dart';
 import '../services/session_manager.dart';
 
+/// Klasa przedstawiająca ekran zmiany PIN użytkownika.
+///
+/// Umożliwia użytkownikowi aktualizację swojego PIN poprzez wprowadzenie aktualnego oraz nowego PINu.
+/// Po aktualizacji PINu użytkownik jest przekierowany na ekran listy pacjentów.
 class ChangePasswordScreen extends StatefulWidget {
   const ChangePasswordScreen({super.key});
 
@@ -13,12 +17,25 @@ class ChangePasswordScreen extends StatefulWidget {
 }
 
 class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
+  /// Klucz formularza do zarządzania walidacją.
   final _formKey = GlobalKey<FormState>();
+
+  /// Kontroler pola obecnego PINu.
   final TextEditingController _oldPinController = TextEditingController();
+
+  /// Kontroler pola nowego PINu.
   final TextEditingController _newPinController = TextEditingController();
+
+  /// Kontroler pola potwierdzenia nowego PINu.
   final TextEditingController _confirmNewPinController = TextEditingController();
+
+  /// Instancja klasy `DatabaseHelper` do interakcji z bazą danych.
   final dbHelper = DatabaseHelper.instance;
 
+  /// Metoda zmiany PINu użytkownika.
+  ///
+  /// Sprawdza poprawność obecnego PINu oraz zgodność nowego PINu.
+  /// Po udanej zmianie PINu, aktualizuje dane użytkownika w bazie.
   Future<void> _changePassword() async {
     if (_formKey.currentState!.validate()) {
       String oldPin = _oldPinController.text.trim();
@@ -29,7 +46,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
         // Jeśli nowy PIN i potwierdzony PIN są różne
         print('New PINs do not match');
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('New PINs do not match')),
+          const SnackBar(content: Text('New PINs do not match')),
         );
         return;
       }
@@ -38,21 +55,20 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
         // Uzyskaj aktualnie zalogowanego użytkownika
         User? currentUser = SessionManager().getLoggedInUser();
         if (currentUser != null) {
-          // Sprawdzamy, czy stary PIN jest poprawny
+          // Sprawdzenie, czy stary PIN jest poprawny
           bool isOldPinCorrect = BCrypt.checkpw(oldPin, currentUser.pin);
 
           if (isOldPinCorrect) {
-            // Haszujemy nowy PIN
+            // Haszowanie nowego PINu
             String hashedNewPin = BCrypt.hashpw(newPin, BCrypt.gensalt());
 
-            // Aktualizujemy PIN w bazie
+            // Aktualizacja PINu w bazie
             currentUser.pin = hashedNewPin;
             await dbHelper.updateUser(currentUser);
             print('Password changed successfully!');
-            // Wyświetlamy sukces
-            ScaffoldMessenger.of(context).showSnackBar(
 
-              SnackBar(content: Text('Password changed successfully!')),
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Password changed successfully!')),
             );
 
             // Nawigacja z powrotem do listy pacjentów
@@ -66,26 +82,26 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
             // Stary PIN nie jest poprawny
             print('Incorrect old PIN');
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('Incorrect old PIN')),
+              const SnackBar(content: Text('Incorrect old PIN')),
             );
           }
         } else {
-          // Użytkownik nie istnieje (powinno być to rzadkie)
+          // Użytkownik nie istnieje
           print('User not found');
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('User not found')),
+            const SnackBar(content: Text('User not found')),
           );
         }
       } catch (e) {
-        // Obsługa błędów (np. problemy z bazą danych)
         print('Error changing password: $e');
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error changing password. Please try again.')),
+          const SnackBar(content: Text('Error changing password. Please try again.')),
         );
       }
     }
   }
 
+  ///Buduje interfejs użytkownika ekranu zmiany PINu.
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
@@ -137,6 +153,8 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
           key: _formKey,
           child: Column(
             children: [
+
+              /// Pole tekstowe obecnego PINu.
               TextFormField(
                 controller: _oldPinController,
                 decoration: InputDecoration(
@@ -156,6 +174,8 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                 },
               ),
               const SizedBox(height: 16),
+
+              ///Pole tekstowe nowego PINu.
               TextFormField(
                 controller: _newPinController,
                 decoration: InputDecoration(
@@ -177,6 +197,8 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                 },
               ),
               const SizedBox(height: 16),
+
+              /// Pole tekstowe potwierdzenia nowego PINu.
               TextFormField(
                 controller: _confirmNewPinController,
                 decoration: InputDecoration(
@@ -201,32 +223,34 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                 },
               ),
               const SizedBox(height: 48),
+
+                /// Przycisk zapisu zmiany PINu.
                 SizedBox(
-                width: MediaQuery.of(context).size.width * 0.6,
-                child: ElevatedButton(
-                onPressed: _changePassword,
-                style:ElevatedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(horizontal: 48, vertical: 16),
-                shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(25),
-                ),
-                backgroundColor: colorScheme.primary,
-                ),
-                child: Text('Save',
-                style: textTheme.bodyLarge?.copyWith(
-                color: colorScheme.onPrimary,
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                ),
-                ),
-                ),
+                 width: MediaQuery.of(context).size.width * 0.6,
+                  child: ElevatedButton(
+                   onPressed: _changePassword,
+                   style:ElevatedButton.styleFrom(
+                     padding: const EdgeInsets.symmetric(horizontal: 48, vertical: 16),
+                     shape: RoundedRectangleBorder(
+                       borderRadius: BorderRadius.circular(25),
+                     ),
+                  backgroundColor: colorScheme.primary,
+                  ),
+                child: Text(
+                  'Save',
+                  style: textTheme.bodyLarge?.copyWith(
+                    color: colorScheme.onPrimary,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,),
+                   ),
+                  ),
                 ),
             ],
           ),
         ),
-    ],
-    ),
-    ),
+        ],
+      ),
+      ),
         ),
     );
   }

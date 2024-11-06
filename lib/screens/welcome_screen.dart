@@ -2,11 +2,12 @@ import 'package:flutter/material.dart';
 import 'login_screen.dart';
 
 ///Klasa reprezentująca ekran startowy aplikacji.
-///Ekran z logiem, tesktem startowym oraz przejściem do ekranu logowania.
+///
+///Ekran z logiem, tesktem startowym oraz przyciskiem przejścia do ekranu logowania.
 class WelcomeScreen extends StatelessWidget {
   const WelcomeScreen({super.key});
 
-  ///Metoda budująca interfejs ekranu startowego.
+  ///Metoda budująca interfejs użytkownika ekranu startowego.
   @override
   Widget build(BuildContext context) {
     //Pobranie schematu kolrów.

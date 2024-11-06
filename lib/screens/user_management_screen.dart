@@ -4,48 +4,61 @@ import '../models/user.dart';
 import 'alertDialog.dart';
 import 'patient_list.dart';
 
-
+///Klasa reprezentująca ekran zarządzania użytkownikami.
+///
+/// Pozwala administratorowi na przeglądanie, blokowanie, odblokowanie, nadawanie uprawnień administratora oraz usuwanie użytkowników.
 class UserManagementScreen extends StatefulWidget {
+  const UserManagementScreen({super.key});
+
   @override
   _UserManagementScreenState createState() => _UserManagementScreenState();
 }
 
 class _UserManagementScreenState extends State<UserManagementScreen> {
+  ///Lista użytkowników pobrana z bazy danych.
   List<User> users = [];
+
+  ///Instancja klasy 'DatabaseHelper' do interakcji z bazą danych.
   final dbHelper = DatabaseHelper.instance;
 
+  ///Metoda wywoływana podczas inicjalizacji stanu.
   @override
   void initState() {
     super.initState();
     _loadUsers();
   }
 
-  // Ładowanie użytkowników z bazy danych
+  ///Ładuje listę użytkowników z bazy danych.
   void _loadUsers() async {
     users = await dbHelper.getAllUsers();
     setState(() {});
   }
 
-  // Aktualizacja statusu blokady użytkownika
+  /// Aktualizuje status blokady użytkownika.
+  ///
+  /// Zmienia wartość 'isBlocked' i aktualizuje rekord w bazie danych.
   void _toggleUserBlock(User user) async {
     user.isBlocked = !user.isBlocked;
     await dbHelper.updateUser(user);
     setState(() {});
   }
 
-  // Aktualizacja statusu administratora
+  ///Aktualizuje status administratora użytkownika
+  ///
+  /// Zmienia wartość 'isAdmin' i aktualizuje rekord w bazie.
   void _toggleAdminStatus(User user) async {
     user.isAdmin = !user.isAdmin;
     await dbHelper.updateUser(user);
     setState(() {});
   }
 
-  // Usunięcie użytkownika
+  ///Usuwa użytkownika z bazy danych.
   void _deleteUser(User user) async {
     await dbHelper.deleteUser(user.userID!);
     _loadUsers();
   }
 
+  ///Wyświetla okno dialogowe potwierdzające usunięcie użytkowników.
   void _confirmDeleteUser(User user){
     CCupertinoAlertDialog.show(
       context: context,
@@ -57,6 +70,7 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
     );
   }
 
+  ///Metoda budująca interfejs ekranu zarządzania użytkownikami.
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;

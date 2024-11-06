@@ -31,7 +31,6 @@ class SessionManager {
   ///
   /// Zwraca:
   /// - Obiekt typu User, jeśli użytkownik jest zalogowany, w przeciwnym razie `null`.
-
   User? getLoggedInUser() {
     return _loggedInUser;
   }

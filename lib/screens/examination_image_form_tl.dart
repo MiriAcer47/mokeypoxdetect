@@ -11,80 +11,116 @@ import 'package:tflite_flutter/tflite_flutter.dart';
 import 'package:flutter/services.dart'; // For rootBundle
 import 'package:image/image.dart' as img; // For image processing
 
-// Klasa przedstawiająca ekran dodawania nowego zdjęcia w ramach danego badania.
-// Użytkownik może zrobić zdjęcie kamerą urządzenia i zapisać w bazie
+/// Klasa przedstawiająca ekran dodawania nowego zdjęcia w ramach danego badania.
+///
+/// Umożliwia użytkownikowi zrobienie zdjęcia za pomocą kamery urządzenia lub wybór zdjęcia z galerii.
+/// Następnie zdjęcie jest automatycznie klasyfikowane przy użyciu modelu TensorFlow Lite.
 class ExaminationImageFormTL extends StatefulWidget {
-  final Examination examination; // Obiekt badania, do którego dodawane jest zdjęcie
-  final int typ; // 1: take photo, 2: select from gallery
-  ExaminationImageFormTL({required this.examination, required this.typ});
+  /// Obiekt badania, do którego dodawane jest zdjęcie.
+  final Examination examination;
+
+  /// Typ zdjęcia:
+  /// 1: zrobienie zdjęcia kamerą urządzenia
+  /// 2: wybór zdjęcia z galerii.
+  final int typ;
+
+  /// Konstruktor klasy 'ExaminationImageFormTL'
+  ///
+  /// Parametry:
+  /// - [examination]: Obiekt badania, dla którego klasyfikowane jest zdjęcie.
+  /// - [typ]: Typ zdjęcia
+  const ExaminationImageFormTL({super.key, required this.examination, required this.typ});
 
   @override
   _ExaminationImageFormState createState() => _ExaminationImageFormState();
 }
 
 class _ExaminationImageFormState extends State<ExaminationImageFormTL> {
+  /// Plik zdjęcia wybranego lub zrobionego przez użytkownika.
   File? _imageFile;
-  final picker = ImagePicker(); // Obiekt do obsługi kamery
+
+  /// Obiekt do obsługi wyboru zdjęcia.
+  final picker = ImagePicker();
+
+  /// Instancja klasy 'DatabaseHelper' do interakcji z bazą danych.
   final dbHelper = DatabaseHelper.instance;
+
+  /// Wynik klasyfikacji zdjęcia (true - pozytywny, false - negatywny)
   bool? _result = false;
+
+  /// Flaga informująca o trakcie zapisywania zdjęcia.
   bool _isSaving = false;
-//zmienne przechowujące wyniki klasyfikacji
-  String? _classificationLabel; // Przechowuje etykietę klasyfikacji (np. "Positive" lub "Negative")
-  double? _classificationConfidence; // Przechowuje poziom zaufania klasyfikacji (np. 85%)
 
+  /// Flaga informująca o trakcie klasyfikacji obrazu.
+  bool _isClassifying = false;
 
-  // TensorFlow Lite Interpreter and related variables
+  /// Etykieta klasyfikacji
+  String? _classificationLabel;
+
+  /// Poziom dokładości klasyfikacji.
+  double? _classificationConfidence;
+
+  /// Interpreter TensorFlow Lite do klasyfikacji obrazów.
   late Interpreter _interpreter;
+
+  /// Lista etykiet używanych przez model.
   List<String>? _labels;
-  int _inputSize = 224; // Default input size
-  double _imageMean = 0;
-  double _imageStd = 1;
+
+  /// Rozmiar wejściowy modelu
+  int _inputSize = 224;
+
+  /// Średnia wartość pikseli dla normalizacji obrazu.
+  final double _imageMean = 0;
+
+  /// Wartość standardowa dla normalizacji obrazu.
+  final double _imageStd = 1;
+
+  /// Liczba kanałów kolorów w obrazie.
   int _numChannels = 3;
 
-
+  /// Metoda wywoływana podczas inicjalizacji stanu.
+  ///
+  /// Ładuje model TensorFlow Lite oraz automatycznie uruchamia kamerę urządzenia lub wybór zdjęcia z galerii.
   @override
   void initState() {
     super.initState();
     _loadModel();
     if (widget.typ == 1) {
       _takePhoto();
+    } else {
+      _pickImageFromGallery();
     }
-    else {
-      _pickImageFromGallery(); // Automatyczne uruchoienie kamery po otwarciu ekranu
-    }
-
-
   }
 
-  /// Load the TensorFlow Lite model and labels
+  /// Metoda służąca do ładowania modelu TensorFlow Lite oraz etykiet z plików z zasobów.
   Future<void> _loadModel() async {
     try {
-      // Load the TFLite model
+      // Ładuje model
       _interpreter = await Interpreter.fromAsset('assets/model1mobilenetv2test.tflite');
       print("Model loaded successfully");
 
-      // Load labels
+      // Ładuje etykiety
       String labelsData = await rootBundle.loadString('assets/label.txt');
       _labels = labelsData.split('\n');
       print('Labels loaded: ${_labels?.length}');
 
-      // Get input size from the model
+      // Bierze rozmiar wejściowy modelu [1, height, width, channels]
       var inputShape = _interpreter.getInputTensor(0).shape;
-      // Assuming input shape is [1, height, width, channels]
       _inputSize = inputShape[1];
       _numChannels = inputShape[3];
       print('Model input size: $_inputSize x $_inputSize x $_numChannels');
     } catch (e) {
       print("Error loading model: $e");
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error loading model. Please try again later.')),
+        const SnackBar(content: Text('Error loading model. Please try again later.')),
       );
     }
   }
 
-  /// Pick an image from the gallery
+  /// Wybiera obraz z galerii urządzenia.
+  ///
+  /// Po wybraniu zdjęcia, klasyfikuje je przy użyciu modelu.
   Future<void> _pickImageFromGallery() async {
-    final picker = ImagePicker();
     final pickedImage = await picker.pickImage(source: ImageSource.gallery);
     try {
       if (pickedImage != null) {
@@ -98,7 +134,9 @@ class _ExaminationImageFormState extends State<ExaminationImageFormTL> {
     }
   }
 
-  // Metoda służąca do uruchamiania aparatu i zapisu zdjęcia
+  /// Metoda służąca do uruchamiania aparatu i zrobienia zdjęcia.
+  ///
+  /// Po zrobieniu zdjęcia, zapisuje je w katalogu aplikacji oraz klasyfikuje.
   Future<void> _takePhoto() async {
     final pickedFile = await picker.pickImage(source: ImageSource.camera, imageQuality: 80);
 
@@ -112,12 +150,13 @@ class _ExaminationImageFormState extends State<ExaminationImageFormTL> {
         _imageFile = savedImage;
       });
 
-      // Run classification on the captured image
       _classifyImage(savedImage);
     }
   }
 
-  // Metoda zapisu zdjęcia do bazy danych
+  /// Metoda zapisująca zdjęcie do bazy danych.
+  ///
+  /// Jeśli zdjęcie zostało wybrane z galerii lub zrobione, zapisuje je wraz z wynikiem klasyfikacji.
   Future<void> _saveImage() async {
     if (_imageFile != null) {
       setState(() {
@@ -131,13 +170,13 @@ class _ExaminationImageFormState extends State<ExaminationImageFormTL> {
       try {
         await dbHelper.insertExaminationImage(image); // Wstawia zdjęcie do bazy danych
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Image saved successfully.')),
+          const SnackBar(content: Text('Image saved successfully.')),
         );
         Navigator.pop(context);
       } catch (e) {
         print('Error saving image: $e');
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error saving image. Please try again.')),
+          const SnackBar(content: Text('Error saving image. Please try again.')),
         );
       } finally {
         setState(() {
@@ -146,48 +185,54 @@ class _ExaminationImageFormState extends State<ExaminationImageFormTL> {
       }
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Please take a photo')),
+        const SnackBar(content: Text('Please take a photo')),
       );
     }
   }
 
-  /// Preprocess the image and classify it using TensorFlow Lite
+  /// Przetwarza i klasyfikuje obraz przy użyciu modelu TensorFlow Lite.
+  ///
+  /// Parametr:
+  /// - [image]: Obiekt 'File' reprezentujący obraz do klasyfikacji.
+  ///
+  /// Aktualizuje wynik klasyfikacji i wyświetla komunikat z wynikiem.
   Future<void> _classifyImage(File image) async {
+    setState(() {
+      _isClassifying = true;
+    });
     try {
       print("Processing image");
 
-      // Load and preprocess the image
+      // Ładowanie i przetwarzanie zdjęcia
       img.Image? imageInput = img.decodeImage(image.readAsBytesSync());
 
       if (imageInput == null) {
         print("Failed to decode image.");
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to decode image. Please try another photo.')),
+          const SnackBar(content: Text('Failed to decode image. Please try another photo.')),
         );
         return;
       }
 
-      // Resize the image
+      // Zmiana rozmiaru zdjęcia
       img.Image resizedImage = img.copyResize(imageInput, width: _inputSize, height: _inputSize);
 
-      // Convert the image to a 4D list [1, height, width, channels]
+      // Konwersja zdjęcia do 4D
       List<List<List<List<double>>>> input = _imageTo4DList(resizedImage, _inputSize, _imageMean, _imageStd);
 
-      // Optional: Add assertions to verify input shape
+      // Dodaje potwierdzenie, aby zweryfikować rozmiar danych wejściowych.
       assert(input.length == 1);
       assert(input[0].length == _inputSize);
       assert(input[0][0].length == _inputSize);
       assert(input[0][0][0].length == _numChannels);
 
-      // Prepare output buffer
-      // Assuming the output tensor shape is [1, num_labels]
+      // Przygotowuje bufor wyjściowy - kształt tensora wyjściowego [1, num_labels]
       List<List<double>> outputBuffer = List.generate(1, (_) => List.filled(_labels!.length, 0.0));
 
-      // Run inference
+      // Interpreter wykonuje klasyfikację obrazu
       _interpreter.run(input, outputBuffer);
 
-
-      // Process the output
+      // Przetwarza dane wyjściowe
       double confidence = outputBuffer[0][0]; // Jedna wartość
 
       setState(() {
@@ -208,12 +253,25 @@ class _ExaminationImageFormState extends State<ExaminationImageFormTL> {
     } catch (e) {
       print("Error during image classification: $e");
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error during image classification. Please try again.')),
+        const SnackBar(content: Text('Error during image classification. Please try again.')),
       );
+    } finally {
+      setState(() {
+        _isClassifying = false;
+      });
     }
   }
 
-  /// Convert image to 4D List as required by the model
+  /// Konwertuje obraz do formatu wymaganego przez model
+  ///
+  /// Parametry:
+  /// - [image]: Obiekt 'img.Image' przedstawiający przetworzony obraz.
+  /// - [inputSize]: Rozmiar wejściowy modelu.
+  /// - [mean]: Średnia wartość pikseli do normalizacji.
+  /// - [std]: Wartość standardowa do normalizacji.
+  ///
+  /// Zwraca:
+  /// - 4D lista liczb zmiennoprzecinkowych reprezentująca przetworzony obraz.
   List<List<List<List<double>>>> _imageTo4DList(img.Image image, int inputSize, double mean, double std) {
     List<List<List<List<double>>>> input = List.generate(
       1,
@@ -243,12 +301,16 @@ class _ExaminationImageFormState extends State<ExaminationImageFormTL> {
     return input;
   }
 
+  /// Metoda wywoływana przy zamykaniu widgetu.
+  ///
+  /// Zamyka interpreter TensorFlow Lite.
   @override
   void dispose() {
     _interpreter.close();
     super.dispose();
   }
 
+  /// Buduje interfejs użytkownika formularza dodawania zdjęcia.
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
@@ -281,6 +343,7 @@ class _ExaminationImageFormState extends State<ExaminationImageFormTL> {
                 : Expanded(
               child: Column(
                 children: [
+                  /// Wyświetlanie wybranego lub zrobionego zdjęcia.
                   Container(
                     width: double.infinity,
                     decoration: BoxDecoration(
@@ -297,7 +360,8 @@ class _ExaminationImageFormState extends State<ExaminationImageFormTL> {
                       ),
                     ),
                   ),
-                  SizedBox(height: 32),
+                  const SizedBox(height: 32),
+                  /// Etykieta sekcji wyboru wyniku klasyfikacji
                   Align(
                     alignment: Alignment.centerLeft,
                     child: Text(
@@ -309,7 +373,8 @@ class _ExaminationImageFormState extends State<ExaminationImageFormTL> {
                       ),
                     ),
                   ),
-                  SizedBox(height: 16),
+                  const SizedBox(height: 16),
+                  /// Przełącznik ręcznego wyboru wyniku klasyfikacji.
                   ToggleButtons(
                     borderRadius: BorderRadius.circular(10),
                     isSelected: [_result == true, _result == false],
@@ -317,13 +382,15 @@ class _ExaminationImageFormState extends State<ExaminationImageFormTL> {
                       setState(() {
                         _result = index == 0;
                         // Opcjonalnie, zresetuj klasyfikację, jeśli użytkownik zmienia przełącznik
-                       // _classificationLabel = null;
-                        //_classificationConfidence = null;
+                        // _classificationLabel = null;
+                        // _classificationConfidence = null;
                       });
                     },
                     selectedColor: colorScheme.onPrimary,
                     color: colorScheme.primary,
-                    fillColor: _result == true ? colorScheme.error.withOpacity(0.7) : Colors.green.shade400.withOpacity(0.7), // Zwiększona przejrzystość
+                    fillColor: _result == true
+                        ? colorScheme.error.withOpacity(0.7)
+                        : Colors.green.shade400.withOpacity(0.7), // Zwiększona przejrzystość
                     borderColor: colorScheme.primary, // Dodanie koloru obramowania
                     selectedBorderColor: colorScheme.primary, // Kolor obramowania, gdy wybrane
                     constraints: BoxConstraints(
@@ -341,36 +408,41 @@ class _ExaminationImageFormState extends State<ExaminationImageFormTL> {
                       ),
                     ],
                   ),
-                  SizedBox(height: 32),
-                  // Wyświetlanie wyniku klasyfikacji
-                  Text(
-                      'Classification Result: ${(_classificationConfidence! * 100).toStringAsFixed(2)}%',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: _classificationLabel == 'Positive' ? colorScheme.error : Colors.green.shade400,
-                      ),
+                  const SizedBox(height: 32),
+                  /// Wyświetlanie wyniku klasyfikacji lub wskaźnika ładowania.
+                  _isClassifying
+                      ? CircularProgressIndicator(
+                    valueColor: AlwaysStoppedAnimation<Color>(colorScheme.primary),
+                  )
+                      : Text(
+                    'Classification Result: ${(_classificationConfidence! * 100).toStringAsFixed(2)}%',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: _classificationLabel == 'Positive'
+                          ? colorScheme.error
+                          : Colors.green.shade400,
                     ),
+                  ),
                 ],
               ),
             ),
 
             // Przycisk zapisu zdjęcia
-
-
           ],
         ),
       ),
-      bottomNavigationBar:BottomAppBar(
+      bottomNavigationBar: BottomAppBar(
         color: Theme.of(context).scaffoldBackgroundColor,
         child: Container(
           height: 70,
-          padding: EdgeInsets.symmetric(horizontal:16),
-          child:Row(
+          padding: EdgeInsets.symmetric(horizontal: 16),
+          child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children:[
+            children: [
+              /// Przycisk Cancel
               ElevatedButton.icon(
-                onPressed: _isSaving
+                onPressed: _isSaving || _isClassifying
                     ? null
                     : () {
                   Navigator.pop(context);
@@ -392,9 +464,9 @@ class _ExaminationImageFormState extends State<ExaminationImageFormTL> {
                   backgroundColor: colorScheme.secondary, // Different color for Cancel
                 ),
               ),
-              // Save Image Button
+              /// Przycisk Save Image.
               ElevatedButton.icon(
-                onPressed: _isSaving ? null : _saveImage,
+                onPressed: _isSaving || _isClassifying ? null : _saveImage,
                 icon: _isSaving
                     ? SizedBox(
                   width: 24,

@@ -1,5 +1,4 @@
 import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:monkey/models/examination_image.dart';
 import '../models/patient.dart';
@@ -11,36 +10,57 @@ import 'package:intl/intl.dart';
 import 'alertDialog.dart';
 import 'package:share_plus/share_plus.dart';
 
+/// Klasa przedstawiająca ekran z listą badań pacjenta.
+///
+/// Umożliwia przeglądanie, dodawanie, edytowanie, usuwanie badania.
+/// Dodatkowo, pozwala na udostępnianie wyników badań.
 class ExaminationList extends StatefulWidget {
+
+  /// Pacjent, którego badania są wyświetlane.
   final Patient patient;
 
-  const ExaminationList({required this.patient});
+  const ExaminationList({super.key, required this.patient});
 
   @override
   _ExaminationListState createState() => _ExaminationListState();
 }
 
 class _ExaminationListState extends State<ExaminationList> {
+  /// Lista wszystkich badań pacjenta.
   List<Examination> examinations = [];
+
+  /// Instancja klasy 'DatabaseHelper' do interakcji z bazą danych.
   final dbHelper = DatabaseHelper.instance;
+
+  /// Formatowanie daty w formacie 'yyyy-MM-dd'
   final dateFormat = DateFormat('yyyy-MM-dd');
 
+  /// Metoda wywołana podczas inicjalizacji stanu.
   @override
   void initState() {
     super.initState();
     _refreshExaminations();
   }
 
+  /// Pobiera badania pacjenta z bazy danych i aktualizuje listę badań.
   void _refreshExaminations() async {
     examinations = await dbHelper.getExaminations(widget.patient.patientID!);
     setState(() {});
   }
 
+  /// Usuwa badanie z bazy danych na podstawie jego ID.
+  ///
+  /// Parametr:
+  /// - [id]: ID badania do usunięcia.
   void _deleteExamination(int id) async {
     await dbHelper.deleteExamination(id);
     _refreshExaminations();
   }
 
+  /// Nawiguje do formularza dodawania lub edycji badania.
+  ///
+  /// Parametr:
+  /// - [exam]: Opcjonalny obiekt 'Examination' do edycji. Jeśli null formularz służy do dodawania nowego badania.
   void _navigateToExaminationForm({Examination? exam}) async {
     await Navigator.push(
       context,
@@ -54,6 +74,10 @@ class _ExaminationListState extends State<ExaminationList> {
     _refreshExaminations();
   }
 
+  /// Wyświetla okno dialogowe potwierdzające usunięcie badania.
+  ///
+  /// Parametr:
+  /// - [id]: ID badamia do usunięcia.
   void _confirmDeleteExamintation(int id){
     CCupertinoAlertDialog.show(
       context: context,
@@ -65,6 +89,10 @@ class _ExaminationListState extends State<ExaminationList> {
     );
   }
 
+  /// Metoda umożliwiająca udostępnianie wyników badania.
+  ///
+  /// Parametr:
+  /// - [exam]: Obiekt 'Examination', którego wyniki mają zostać udostępnione.
   Future<void> _shareExamination(Examination exam) async{
     print('sending results');
     String shareContent = '''
@@ -103,12 +131,13 @@ class _ExaminationListState extends State<ExaminationList> {
      print('results sent');
     }catch(e){
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('There was promlen in sharing the examination. Try again.')),
+        const SnackBar(content: Text('There was promlen in sharing the examination. Try again.')),
       );
       print('Error sharing examination: $e');
     }
   }
 
+  /// Buduje interfejs użytkownika ekranu z listą badań pacjenta.
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
