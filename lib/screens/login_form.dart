@@ -33,11 +33,9 @@ class _LoginFormState extends State<LoginForm> {
     if (_formKey.currentState!.validate()) {
       String username = _usernameController.text.trim(); //Pobiera i czyści nazwę użtkownika.
       String pin = _pinController.text.trim(); //Pobiera i czyści PIN.
-
       try {
         User? user = await dbHelper.getUser(
             username); //Pobiera użytkownika z bazy.
-
         if (!mounted) return;
 
         if (user != null) {
@@ -50,7 +48,6 @@ class _LoginFormState extends State<LoginForm> {
             return; // Zatrzymanie logowania
           }
           bool isPinValid = BCrypt.checkpw(pin, user.pin);
-
           //Jeśli dane są poprawne, przejście do listy pacjentów.
           if (isPinValid) {
             // Logowanie pomyślne, ustawiamy użytkownika w session managerze
@@ -66,9 +63,9 @@ class _LoginFormState extends State<LoginForm> {
             );
           }
         } else{
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Invalid username or PIN')),
-            );
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Invalid username or PIN')),
+          );
         }
       } catch (e) {
         //Obsługa błędu - przy braku połączenia z bazą wyświetla komunikat  o błędzie.
@@ -133,21 +130,21 @@ class _LoginFormState extends State<LoginForm> {
           ),
           const SizedBox(height: 48),
           //Przycisk logowania
-      SizedBox(
-        width: MediaQuery.of(context).size.width * 0.6,
-        child: ElevatedButton(
-            onPressed: _login,
-            style: ElevatedButton.styleFrom(
-              padding: const EdgeInsets.symmetric(horizontal: 48, vertical: 16),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(25),
+          SizedBox(
+            width: MediaQuery.of(context).size.width * 0.6,
+            child: ElevatedButton(
+              onPressed: _login,
+              style: ElevatedButton.styleFrom(
+                padding: const EdgeInsets.symmetric(horizontal: 48, vertical: 16),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(25),
+                ),
+                backgroundColor: colorScheme.primary,
               ),
-              backgroundColor: colorScheme.primary,
+              child: Text('Login',
+                  style: textTheme.bodyLarge?.copyWith(color: colorScheme.onPrimary, fontSize: 18, fontWeight: FontWeight.bold)),
+            ),
           ),
-            child: Text('Login',
-                style: textTheme.bodyLarge?.copyWith(color: colorScheme.onPrimary, fontSize: 18, fontWeight: FontWeight.bold)),
-        ),
-      ),
         ],
       ),
     );

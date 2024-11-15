@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import '../models/examination.dart';
 import '../models/examination_image.dart';
 import '../database_helper.dart';
-import 'examination_image_form.dart';
 import 'examination_image_form_tl.dart';
 import 'alertDialog.dart';
 

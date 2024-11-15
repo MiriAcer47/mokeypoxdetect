@@ -6,7 +6,7 @@ import 'login_form.dart';
 ///Klasa przedstawiająca ekran logowania użytkownika.
 ///
 ///Zawiera formularz logowania.
-  class LoginScreen extends StatelessWidget{
+class LoginScreen extends StatelessWidget{
   const LoginScreen({super.key});
 
   ///Metoda budująca interfejs użytkownika ekranu logowania.
@@ -16,9 +16,9 @@ import 'login_form.dart';
     final textTheme = Theme.of(context).textTheme;
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          'User Login', style: textTheme.titleLarge?.copyWith(color: colorScheme.onPrimary)),
-        backgroundColor: colorScheme.primary),
+          title: Text(
+              'User Login', style: textTheme.titleLarge?.copyWith(color: colorScheme.onPrimary)),
+          backgroundColor: colorScheme.primary),
       body: SingleChildScrollView(
         child: Center(
           child: Padding(
@@ -29,12 +29,12 @@ import 'login_form.dart';
                 const SizedBox(height: 40.0),
                 //Obraz na ekranie logowania.
                 Image.asset(
-                  'assets/images/img22_loginscreen.png',
-                  height: 200.0),
+                    'assets/images/img22_loginscreen.png',
+                    height: 200.0),
                 const SizedBox(height: 20.0),
-                 Text(
+                Text(
                   'Enter your login and PIN',
-                   style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                     //color: colorScheme.onSurface,
                     color: colorScheme.primary,
                     fontWeight: FontWeight.bold,
