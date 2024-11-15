@@ -96,7 +96,7 @@ class _ExaminationImageFormState extends State<ExaminationImageFormTL> {
   Future<void> _loadModel() async {
     try {
       // Ładuje model
-      _interpreter = await Interpreter.fromAsset('assets/model1mobilenetv2test.tflite');
+      _interpreter = await Interpreter.fromAsset('assets/model_mobilenet.tflite');
       print("Model loaded successfully");
 
       // Ładuje etykiety
@@ -319,7 +319,7 @@ class _ExaminationImageFormState extends State<ExaminationImageFormTL> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'New Examination Image',
+          'Image Result',
           style: textTheme.titleLarge?.copyWith(color: colorScheme.onPrimary),
         ),
         backgroundColor: colorScheme.primary,

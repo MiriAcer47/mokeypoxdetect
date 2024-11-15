@@ -1,4 +1,4 @@
-///Klara reprezentująca pacjenta.
+///Klasa reprezentująca pacjenta.
 class Patient {
   ///unikalny identyfikator pacjenta.
   int? patientID;

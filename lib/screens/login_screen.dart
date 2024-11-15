@@ -14,31 +14,27 @@ import 'login_form.dart';
   Widget build(BuildContext context) {
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
-
     return Scaffold(
       appBar: AppBar(
-        title: Text('User Login', style: textTheme.titleLarge?.copyWith(color: colorScheme.onPrimary),),
-        backgroundColor: colorScheme.primary,
-      ),
+        title: Text(
+          'User Login', style: textTheme.titleLarge?.copyWith(color: colorScheme.onPrimary)),
+        backgroundColor: colorScheme.primary),
       body: SingleChildScrollView(
         child: Center(
           child: Padding(
             padding: const EdgeInsets.all(24.0),
-
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
-
               children: [
                 const SizedBox(height: 40.0),
                 //Obraz na ekranie logowania.
                 Image.asset(
                   'assets/images/img22_loginscreen.png',
-                  height: 200.0,
-                ),
+                  height: 200.0),
                 const SizedBox(height: 20.0),
                  Text(
                   'Enter your login and PIN',
-                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                   style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                     //color: colorScheme.onSurface,
                     color: colorScheme.primary,
                     fontWeight: FontWeight.bold,
@@ -46,20 +42,8 @@ import 'login_form.dart';
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 48.0),
-                //Formularz logowania
                 const LoginForm(),
                 const SizedBox(height: 16.0),
-                /*HaveAccountCheck(
-                  login: true,
-                  press: (){
-                  Navigator.push(
-                   context,
-                   MaterialPageRoute(
-                    builder: (context) =>SignupScreen(),
-                    ),
-                  );
-                 },
-                ),*/
               ],
             ),
           ),
