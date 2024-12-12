@@ -71,6 +71,7 @@ class _NewAccountScreenState extends State<NewAccountScreen> {
     }
   }
 
+
   /// Usuwa kontrolery przy zamykaniu widgetu.
   @override
   void dispose() {

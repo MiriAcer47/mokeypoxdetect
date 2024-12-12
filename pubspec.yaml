@@ -1,5 +1,8 @@
 name: monkey
-description: "A new Flutter project."
+description: "A Flutter application for detecting and diagnosing Monkeypox cases. 
+  This application allows users to take photos of skin lesions and predicts 
+  whether they indicate Mpox disease. The goal of this app is to provide a 
+  faster and more accurate diagnostic tool to support medical services."
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
@@ -75,10 +78,15 @@ flutter:
   assets:
      - assets/images/
   #   - images/a_dot_ham.jpeg
-     - assets/model_mobilenet.tflite
-     - assets/model1mobilenetv2.tflite
-     - assets/model_densenet201.tflite
-     - assets/model_resnet50.tflite
+    # - assets/model_mobilenet.tflite
+     #- assets/model1mobilenetv2.tflite
+     #- assets/model_densenet201.tflite
+     #- assets/model_resnet50.tflite
+     - assets/mobilenetv2_model1.tflite
+     #- assets/resnet_model1.tflite
+     #- assets/densenet_model1.tflite
+     #- assets/finetuned_model_mobilenet1.tflite
+     - assets/mobilenetv2_model1_multiclass.tflite
      - assets/label.txt
 
   # An image asset can refer to one or more resolution-specific "variants", see

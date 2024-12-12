@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import '../models/examination.dart';
@@ -66,6 +67,8 @@ class _ExaminationImageFormState extends State<ExaminationImageFormTL> {
   /// Lista etykiet używanych przez model.
   List<String>? _labels;
 
+
+
   /// Rozmiar wejściowy modelu
   int _inputSize = 224;
 
@@ -77,6 +80,8 @@ class _ExaminationImageFormState extends State<ExaminationImageFormTL> {
 
   /// Liczba kanałów kolorów w obrazie.
   int _numChannels = 3;
+
+
 
   /// Metoda wywoływana podczas inicjalizacji stanu.
   ///
@@ -96,7 +101,11 @@ class _ExaminationImageFormState extends State<ExaminationImageFormTL> {
   Future<void> _loadModel() async {
     try {
       // Ładuje model
-      _interpreter = await Interpreter.fromAsset('assets/model_mobilenet.tflite');
+      //_interpreter = await Interpreter.fromAsset('assets/model_mobilenet.tflite');
+      //_interpreter = await Interpreter.fromAsset('assets/mobilenetv2_model1.tflite');
+      _interpreter = await Interpreter.fromAsset('assets/mobilenetv2_model1_multiclass.tflite');
+      //_interpreter = await Interpreter.fromAsset('assets/resnet_model1.tflite');
+      //_interpreter = await Interpreter.fromAsset('assets/densenet_model1.tflite');
       print("Model loaded successfully");
 
       // Ładuje etykiety
@@ -127,7 +136,7 @@ class _ExaminationImageFormState extends State<ExaminationImageFormTL> {
         setState(() {
           _imageFile = File(pickedImage.path);
         });
-        _classifyImage(_imageFile!);
+        _classifyImageMulti(_imageFile!);
       }
     } catch (e) {
       print("Error during image classification: $e");
@@ -150,7 +159,7 @@ class _ExaminationImageFormState extends State<ExaminationImageFormTL> {
         _imageFile = savedImage;
       });
 
-      _classifyImage(savedImage);
+      _classifyImageMulti(savedImage);
     }
   }
 
@@ -261,6 +270,100 @@ class _ExaminationImageFormState extends State<ExaminationImageFormTL> {
       });
     }
   }
+
+
+  /// Przetwarza i klasyfikuje obraz przy użyciu modelu TensorFlow Lite. Pozwala na klasyfikację wieloklasową.
+  ///
+  /// Parametr:
+  /// - [image]: Obiekt 'File' reprezentujący obraz do klasyfikacji.
+  ///
+  /// Aktualizuje wynik klasyfikacji i wyświetla komunikat z wynikiem.
+  Future<void> _classifyImageMulti(File image) async {
+    setState(() {
+      _isClassifying = true;
+    });
+    try {
+      print("Processing image");
+      List<String>? _labels2 = ['Monkeypox', 'Normal', 'Other'];
+      // Load and process the image
+      img.Image? imageInput = img.decodeImage(image.readAsBytesSync());
+
+      if (imageInput == null) {
+        print("Failed to decode image.");
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Failed to decode image. Please try another photo.')),
+        );
+        return;
+      }
+
+      // Resize the image
+      img.Image resizedImage = img.copyResize(imageInput, width: _inputSize, height: _inputSize);
+
+      // Convert the image to 4D
+      List<List<List<List<double>>>> input = _imageTo4DList(resizedImage, _inputSize, _imageMean, _imageStd);
+
+      // Verify input dimensions
+      assert(input.length == 1);
+      assert(input[0].length == _inputSize);
+      assert(input[0][0].length == _inputSize);
+      assert(input[0][0][0].length == _numChannels);
+
+      // Prepare output buffer
+      List<List<double>> outputBuffer = List.generate(1, (_) => List.filled(_labels2!.length, 0.0));
+      print("Processing image2");
+      // Run the interpreter
+      _interpreter.run(input, outputBuffer);
+
+      // Process the output
+      List<double> probabilities = outputBuffer[0];
+
+      // Find the index of the highest probability
+      int maxIndex = probabilities.indexOf(probabilities.reduce(max));
+
+      // Get the predicted label and confidence
+      String predictedLabel = _labels2![maxIndex];
+      double confidence = probabilities[maxIndex];
+
+      // Determine _result as a bool: true if 'Monkeypox', false otherwise
+      bool result = predictedLabel == 'Monkeypox';
+
+      setState(() {
+        _classificationConfidence = confidence;
+        _classificationLabel = predictedLabel;
+        _result = result; // true if 'Monkeypox', false otherwise
+      });
+
+      print("Classification result: $_classificationLabel ($_classificationConfidence)");
+
+      // Prepare the message to display
+      String message;
+      if (result) {
+        // Positive for Monkeypox
+        message = 'Classification Result: Positive for Monkeypox\nConfidence: ${(confidence * 100).toStringAsFixed(0)}%';
+      } else {
+        // Negative for Monkeypox, provide predicted class and confidence
+        message = 'Classification Result: Negative for Monkeypox\nPredicted: $_classificationLabel\nConfidence: ${(confidence * 100).toStringAsFixed(0)}%';
+      }
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(message),
+        ),
+      );
+    } catch (e) {
+      print("Error during image classification: $e");
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Error during image classification. Please try again.')),
+      );
+    } finally {
+      setState(() {
+        _isClassifying = false;
+      });
+    }
+  }
+
+
+
 
   /// Konwertuje obraz do formatu wymaganego przez model
   ///
@@ -415,12 +518,13 @@ class _ExaminationImageFormState extends State<ExaminationImageFormTL> {
                     valueColor: AlwaysStoppedAnimation<Color>(colorScheme.primary),
                   )
                       : Text(
-                    'Classification Result: ${(_classificationConfidence! * 100).toStringAsFixed(2)}%',
+                    'Classification Result: $_classificationLabel  ${(_classificationConfidence! * 100).toStringAsFixed(2)}%',
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
-                      color: _classificationLabel == 'Positive'
-                          ? colorScheme.error
+                      color: _classificationLabel == 'Monkeypox'
+
+                          ? colorScheme.error // Czerwony dla pozytywnego wyniku
                           : Colors.green.shade400,
                     ),
                   ),

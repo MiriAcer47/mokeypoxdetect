@@ -126,7 +126,39 @@ class _PatientListState extends State<PatientList> {
       },
     );
   }
-
+  ///Wyświetla okno sialogowe z informacją o aplikacji.
+  void _showInfo(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Information'),
+          content: SingleChildScrollView(
+              child: ListBody(
+                children: const<Widget>[
+                  Text('Application Name: MonkeyPoxDetect', style: TextStyle(fontWeight: FontWeight.bold)),
+                  Text('Version: 1.0.0'),
+                  SizedBox(height: 10),
+                  Text('Author: Miriam Reca', style: TextStyle(fontWeight: FontWeight.bold)),
+                  Text(
+                    'Description: This application allows users to take photos of skin lesions and predicts whether they indicate Mpox disease. The goal of this app is to provide a faster and more accurate diagnostic tool to support medical services.',
+                  ),
+                  SizedBox(height: 10),
+                ],
+              )
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('Close'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
   /// Buduje interfejs użytkownika ekranu z listą pacjentów.
   @override
   Widget build(BuildContext context) {
@@ -185,6 +217,12 @@ class _PatientListState extends State<PatientList> {
                 );
               },
             ),
+          /*IconButton(
+            icon: const Icon(Icons.info_outline, color: Colors.white),
+            onPressed: () {
+              _showInfo(context); // Użyj _showCupertinoInfoDialog(context) dla stylu Cupertino
+            },
+          ),*/
           IconButton(
             icon: Icon(Icons.logout, color: colorScheme.onPrimary),
             onPressed: () {
